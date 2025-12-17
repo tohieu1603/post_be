@@ -2125,6 +2125,81 @@ Thiết kế ánh sáng tốt cần kết hợp 3 tầng (ambient, task, accent)
     },
   ];
 
+  // Auto-generate posts for categories that have < 6 posts
+  const categoryPostCount: Record<number, number> = {};
+  postsContent.forEach(p => {
+    categoryPostCount[p.categoryIndex] = (categoryPostCount[p.categoryIndex] || 0) + 1;
+  });
+
+  // Category templates for auto-generation
+  const categoryTemplates: Record<number, { prefix: string; topics: string[] }> = {
+    0: { prefix: 'Technology', topics: ['AI Revolution', 'Cloud Computing Trends', 'Cybersecurity Best Practices', 'Blockchain Applications', '5G Networks Impact', 'Quantum Computing Basics'] },
+    1: { prefix: 'Tin nhanh', topics: ['Giá thép tăng mạnh Q4/2024', 'Dự án Metro Line 3 khởi công', 'Vinaconex mở rộng thị trường', 'Hòa Phát đầu tư nhà máy mới', 'Xi măng Fico đạt kỷ lục xuất khẩu', 'Coteccons trúng thầu siêu dự án'] },
+    2: { prefix: 'Programming', topics: ['Clean Code Principles', 'Design Patterns Explained', 'Async Programming Guide', 'Testing Best Practices', 'Code Review Tips', 'Performance Optimization'] },
+    3: { prefix: 'Vật liệu xây dựng', topics: ['Gạch AAC nhẹ - Giải pháp xây nhanh', 'Thép Hòa Phát vs Pomina', 'Xi măng PCB40 ứng dụng thực tế', 'Cửa nhôm Xingfa vs Eurowindow', 'Ngói lợp nào tốt nhất 2024', 'Sơn chống nóng mái tôn'] },
+    4: { prefix: 'Web Development', topics: ['Next.js 14 Features Guide', 'CSS Grid vs Flexbox', 'Web Performance Metrics', 'Authentication Strategies', 'API Design Patterns', 'Frontend State Management'] },
+    5: { prefix: 'Công nghệ xây dựng', topics: ['Drone trong khảo sát công trình', '3D Printing trong xây dựng', 'Prefab - Xu hướng nhà lắp ghép', 'Công nghệ chống động đất Nhật Bản', 'Thi công Top-down method', 'Robot xây dựng tương lai'] },
+    6: { prefix: 'Mobile Development', topics: ['React Native vs Flutter 2024', 'iOS Development with SwiftUI', 'Android Jetpack Compose', 'Mobile App Security', 'Push Notification Best Practices', 'Mobile CI/CD Pipeline'] },
+    7: { prefix: 'Tiêu chuẩn pháp lý', topics: ['TCVN 9377 - Nghiệm thu kết cấu', 'Quy chuẩn PCCC mới nhất', 'Giấy phép xây dựng 2024', 'Tiêu chuẩn thang máy TCVN', 'An toàn lao động trong xây dựng', 'Bảo hiểm công trình xây dựng'] },
+    8: { prefix: 'DevOps', topics: ['Kubernetes in Production', 'CI/CD with GitHub Actions', 'Docker Best Practices', 'Infrastructure as Code', 'Monitoring with Prometheus', 'Log Management Solutions'] },
+    9: { prefix: 'Hướng dẫn', topics: ['Thi công sàn phẳng không dầm', 'Lắp đặt điều hòa multi', 'Chống thấm nhà vệ sinh', 'Đổ bê tông mùa mưa', 'Xử lý nứt tường hiệu quả', 'Lắp đặt hệ thống PCCC'] },
+    10: { prefix: 'AI & ML', topics: ['GPT-4 Applications', 'Computer Vision Basics', 'NLP for Developers', 'ML Model Deployment', 'AI Ethics Guidelines', 'AutoML Tools Comparison'] },
+    11: { prefix: 'Case Study', topics: ['Vinhomes Grand Park - Bài học quy hoạch', 'Sân bay Long Thành - Tổng quan', 'Cầu Mỹ Thuận 2 - Công nghệ thi công', 'Lotte Mall Hanoi - Thiết kế TTTM', 'Masteri Thảo Điền - Marketing BĐS', 'Sun World Bà Nà - Du lịch kết hợp'] },
+  };
+
+  // Generate missing posts for each category
+  for (let catIndex = 0; catIndex < 13; catIndex++) {
+    const currentCount = categoryPostCount[catIndex] || 0;
+    const needed = 6 - currentCount;
+    const template = categoryTemplates[catIndex];
+
+    if (needed > 0 && template) {
+      for (let i = 0; i < needed && i < template.topics.length; i++) {
+        const topic = template.topics[currentCount + i] || template.topics[i];
+        const slug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+        postsContent.push({
+          title: topic,
+          slug: `${slug}-${catIndex}-${i}`,
+          excerpt: `Bài viết chi tiết về ${topic}. Tìm hiểu các khía cạnh quan trọng và ứng dụng thực tế.`,
+          content: `# ${topic}
+
+## Giới thiệu
+
+Đây là bài viết tổng hợp về **${topic}**. Chúng ta sẽ cùng tìm hiểu các khía cạnh quan trọng nhất của chủ đề này.
+
+## Nội dung chính
+
+### 1. Tổng quan
+${topic} là một chủ đề quan trọng trong lĩnh vực ${template.prefix}. Bài viết này sẽ giúp bạn hiểu rõ hơn về các khái niệm cơ bản và ứng dụng thực tế.
+
+### 2. Chi tiết kỹ thuật
+- Điểm quan trọng thứ nhất về ${topic}
+- Điểm quan trọng thứ hai liên quan đến ứng dụng
+- Các best practices được khuyến nghị
+- Những lưu ý khi triển khai
+
+### 3. Ứng dụng thực tế
+
+| Khía cạnh | Mô tả | Lợi ích |
+|-----------|-------|---------|
+| Hiệu quả | Tối ưu hóa quy trình | Tiết kiệm 20-30% |
+| Chất lượng | Đảm bảo tiêu chuẩn | Giảm lỗi 50% |
+| Chi phí | Hợp lý hóa đầu tư | ROI 2-3 năm |
+
+## Kết luận
+
+${topic} là xu hướng không thể bỏ qua trong thời đại hiện nay. Hãy bắt đầu tìm hiểu và áp dụng ngay hôm nay.`,
+          categoryIndex: catIndex,
+          tagIndices: [Math.floor(Math.random() * 15), Math.floor(Math.random() * 15) + 13],
+          status: 'published' as const,
+          isFeatured: i === 0,
+          coverImage: `https://picsum.photos/seed/${slug}/1200/630`,
+        });
+      }
+    }
+  }
+
   return postsContent.map((post, index) => ({
     ...post,
     categoryId: categoryIds[post.categoryIndex],
