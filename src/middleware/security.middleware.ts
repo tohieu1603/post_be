@@ -40,12 +40,12 @@ export const securityHeaders = helmet({
 
 // General API rate limit
 export const generalRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
+  windowMs: 2 * 1000, // 2 seconds
+  max: 10, // 10 requests per 2 seconds
   message: {
     success: false,
     error: 'Too many requests, please try again later.',
-    retryAfter: '15 minutes',
+    retryAfter: '2 seconds',
   },
   standardHeaders: true,
   legacyHeaders: false,
