@@ -40,6 +40,19 @@ const PORT = process.env.PORT || 4000;
 app.set('trust proxy', 1);
 
 // ============================================
+// SWAGGER - BEFORE SECURITY (needs inline scripts)
+// ============================================
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'ManagePost API Documentation',
+}));
+
+app.get('/api/docs.json', (_, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+// ============================================
 // SECURITY MIDDLEWARE (ORDER MATTERS!)
 // ============================================
 
@@ -62,18 +75,6 @@ app.use(attachUser());
 // Static files for uploads
 const uploadDir = process.env.UPLOAD_DIR || 'uploads';
 app.use('/uploads', express.static(path.join(process.cwd(), uploadDir)));
-
-// Swagger UI
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'ManagePost API Documentation',
-}));
-
-// Swagger JSON endpoint
-app.get('/api/docs.json', (_, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send(swaggerSpec);
-});
 
 // Public SEO routes (sitemap.xml, robots.txt) - no /api prefix
 app.use('/', publicSeoRoutes);
