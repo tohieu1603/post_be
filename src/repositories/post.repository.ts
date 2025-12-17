@@ -157,7 +157,7 @@ export class PostRepository {
   }
 
   /**
-   * Find posts by category slug
+   * Find posts by category slug (includes posts from subcategories)
    */
   async findByCategorySlug(
     categorySlug: string,
@@ -170,14 +170,18 @@ export class PostRepository {
 
     if (!category) return null;
 
+    // Get all subcategory IDs (children of this category)
+    const subcategories = await Category.find({ parentId: category._id, isActive: true });
+    const categoryIds = [category._id, ...subcategories.map(c => c._id)];
+
     const skip = (page - 1) * limit;
     const total = await Post.countDocuments({
-      categoryId: category._id,
+      categoryId: { $in: categoryIds },
       status: 'published',
     });
 
     const docs = await Post.find({
-      categoryId: category._id,
+      categoryId: { $in: categoryIds },
       status: 'published',
     })
       .populate('category')

@@ -222,11 +222,11 @@ export class PostController {
    */
   getByCategorySlug = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const { categorySlug } = req.params;
+      const { slug } = req.params;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
 
-      const result = await postService.getByCategorySlug(categorySlug, page, limit);
+      const result = await postService.getByCategorySlug(slug, page, limit);
 
       if (!result) {
         return notFoundResponse(res, 'Category');
