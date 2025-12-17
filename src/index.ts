@@ -23,7 +23,7 @@ import { authService } from './services/auth.service';
 import { seoSchedulerService } from './services/seo-scheduler.service';
 import {
   securityMiddleware,
-  generalRateLimiter,
+  // generalRateLimiter, // disabled for development
   authRateLimiter,
   uploadRateLimiter,
   publicApiRateLimiter,
@@ -66,8 +66,8 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: requestSizeLimit.json }));
 app.use(express.urlencoded({ extended: true, limit: requestSizeLimit.urlencoded }));
 
-// 4. General rate limiting for all routes
-app.use('/api/', generalRateLimiter);
+// 4. General rate limiting for all routes (disabled for development)
+// app.use('/api/', generalRateLimiter);
 
 // 5. Attach user info from headers/token
 app.use(attachUser());

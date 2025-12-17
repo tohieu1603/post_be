@@ -129,6 +129,13 @@ const categoriesData = [
     sortOrder: 12,
     isActive: true,
   },
+  {
+    name: 'Thiết kế nội thất',
+    slug: 'thiet-ke-noi-that',
+    description: 'Xu hướng thiết kế nội thất, phong cách, vật liệu và giải pháp cho không gian sống',
+    sortOrder: 13,
+    isActive: true,
+  },
 ];
 
 // Tags - Mixed tech and construction
@@ -1508,6 +1515,613 @@ BMS là đầu tư thiết yếu cho các tòa nhà thương mại hiện đại
       status: 'published' as const,
       isFeatured: false,
       coverImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80',
+    },
+    // ============ THIẾT KẾ NỘI THẤT (6 bài) ============
+    {
+      title: 'Phong cách Japandi - Sự kết hợp hoàn hảo giữa Nhật Bản và Bắc Âu',
+      slug: 'phong-cach-japandi-ket-hop-nhat-ban-bac-au',
+      excerpt: 'Khám phá phong cách Japandi - xu hướng thiết kế nội thất đang được ưa chuộng, kết hợp sự tối giản của Nhật Bản và ấm áp của Scandinavian.',
+      content: `Japandi là sự giao thoa giữa phong cách Nhật Bản (Japanese) và Scandinavian (Bắc Âu), tạo nên không gian sống hài hòa, tối giản nhưng ấm cúng.
+
+## Japandi là gì?
+
+Japandi kết hợp triết lý "Wabi-sabi" của Nhật Bản (vẻ đẹp của sự không hoàn hảo) với phong cách "Hygge" của Bắc Âu (sự ấm áp, thoải mái).
+
+### Đặc điểm nhận diện
+
+| Yếu tố | Nhật Bản | Bắc Âu | Japandi |
+|--------|----------|--------|---------|
+| Màu sắc | Trung tính, đất | Trắng, pastel | Beige, nâu ấm |
+| Vật liệu | Tre, giấy, gỗ | Gỗ sáng, len | Gỗ tự nhiên |
+| Đường nét | Đơn giản, thấp | Hiện đại, thoáng | Tối giản, tinh tế |
+| Không gian | Zen, tĩnh lặng | Ấm áp, cozy | Cân bằng |
+
+## Nguyên tắc thiết kế Japandi
+
+### 1. Tối giản có chủ đích
+- Chỉ giữ đồ vật cần thiết
+- Mỗi món đồ đều có ý nghĩa
+- "Less is more" nhưng không lạnh lẽo
+
+### 2. Vật liệu tự nhiên
+- Gỗ sồi, gỗ óc chó tone ấm
+- Đá tự nhiên, gốm thủ công
+- Vải lanh, bông, len
+
+### 3. Bảng màu trung tính
+\`\`\`
+Màu chủ đạo:
+- Trắng ngà (#FAF9F6)
+- Beige (#F5F5DC)
+- Nâu đất (#8B7355)
+- Xám ấm (#A9A9A9)
+
+Màu nhấn:
+- Xanh rêu (#556B2F)
+- Đen than (#36454F)
+\`\`\`
+
+## Ứng dụng trong từng không gian
+
+### Phòng khách
+- Sofa thấp, đường nét đơn giản
+- Bàn trà gỗ nguyên khối
+- Cây xanh làm điểm nhấn
+
+### Phòng ngủ
+- Giường bệt hoặc thấp
+- Chăn ga màu trung tính
+- Đèn giấy Nhật kiểu Akari
+
+### Phòng ăn
+- Bàn gỗ tự nhiên
+- Ghế mây hoặc gỗ uốn cong
+- Bát đĩa gốm thủ công
+
+## Chi phí tham khảo
+
+| Không gian | Cơ bản | Trung cấp | Cao cấp |
+|------------|--------|-----------|---------|
+| Phòng khách 20m² | 50-80 tr | 100-150 tr | 200-300 tr |
+| Phòng ngủ 15m² | 30-50 tr | 70-100 tr | 150-200 tr |
+| Căn hộ 70m² | 150-250 tr | 300-500 tr | 700tr-1 tỷ |
+
+## Kết luận
+
+Japandi là lựa chọn lý tưởng cho những ai yêu thích sự tối giản nhưng vẫn muốn không gian ấm áp. Phong cách này phù hợp với khí hậu và văn hóa Việt Nam.`,
+      categoryIndex: 12, // Thiết kế nội thất
+      tagIndices: [26], // Nhà ở
+      status: 'published' as const,
+      isFeatured: true,
+      coverImage: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1200&q=80',
+    },
+    {
+      title: 'Top 10 xu hướng thiết kế nội thất 2024-2025',
+      slug: 'top-10-xu-huong-thiet-ke-noi-that-2024-2025',
+      excerpt: 'Tổng hợp 10 xu hướng thiết kế nội thất nổi bật nhất năm 2024-2025: từ màu sắc, vật liệu đến phong cách.',
+      content: `Năm 2024-2025 đánh dấu sự trở lại của thiên nhiên và bền vững trong thiết kế nội thất. Dưới đây là 10 xu hướng đáng chú ý nhất.
+
+## 1. Màu xanh lá đậm (Forest Green)
+
+Màu xanh rừng đang thay thế xanh navy trở thành màu nhấn phổ biến nhất.
+
+**Cách áp dụng:**
+- Tường accent wall
+- Sofa, ghế bành
+- Cây xanh tự nhiên
+
+## 2. Đường cong mềm mại
+
+Nội thất có đường cong (curved furniture) lên ngôi, thay thế góc cạnh.
+
+- Sofa cong
+- Gương tròn/oval
+- Bàn bo góc
+
+## 3. Vật liệu tái chế
+
+Sustainability là từ khóa:
+- Gỗ tái chế
+- Nhựa tái sinh
+- Vải từ chai nhựa
+
+## 4. Phòng đa chức năng
+
+Xu hướng WFH thúc đẩy:
+- Góc làm việc trong phòng ngủ
+- Phòng khách kiêm phòng gym
+- Bếp mở liên thông
+
+## 5. Tone đất (Earthy Tones)
+
+Bảng màu:
+- Terracotta (#E2725B)
+- Olive (#808000)
+- Rust (#B7410E)
+- Sand (#C2B280)
+
+## 6. Ánh sáng tự nhiên tối đa
+
+- Cửa kính lớn
+- Skylight
+- Rèm mỏng nhẹ
+
+## 7. Nội thất thủ công (Artisan)
+
+- Gốm handmade
+- Dệt macramé
+- Gỗ chạm khắc
+
+## 8. Smart Home tích hợp
+
+- Đèn thông minh
+- Rèm tự động
+- Loa âm tường
+
+## 9. Không gian ngoài trời trong nhà
+
+- Vườn đứng (vertical garden)
+- Sân trong (courtyard)
+- Bể cá, tiểu cảnh
+
+## 10. Vintage + Hiện đại
+
+Mix & match:
+- Đồ cổ với nội thất hiện đại
+- Tranh vintage trong không gian minimal
+
+## Kết luận
+
+Xu hướng 2024-2025 tập trung vào sự cân bằng giữa thẩm mỹ và bền vững, giữa công nghệ và tự nhiên.`,
+      categoryIndex: 12, // Thiết kế nội thất
+      tagIndices: [26], // Nhà ở
+      status: 'published' as const,
+      isFeatured: true,
+      coverImage: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1200&q=80',
+    },
+    {
+      title: 'Hướng dẫn chọn sàn gỗ công nghiệp cho căn hộ chung cư',
+      slug: 'huong-dan-chon-san-go-cong-nghiep-can-ho-chung-cu',
+      excerpt: 'Tất tần tật về sàn gỗ công nghiệp: phân loại, tiêu chuẩn AC, độ dày, màu sắc và chi phí lắp đặt cho căn hộ.',
+      content: `Sàn gỗ công nghiệp là lựa chọn phổ biến nhất cho căn hộ chung cư nhờ giá thành hợp lý và đa dạng mẫu mã.
+
+## Phân loại sàn gỗ công nghiệp
+
+### Theo cấu tạo
+
+| Loại | Cấu tạo | Đặc điểm |
+|------|---------|----------|
+| Laminate | HDF + lớp vân gỗ | Phổ biến nhất |
+| SPC | Đá + nhựa | Chống nước 100% |
+| WPC | Gỗ + nhựa | Êm chân |
+| Engineered | Gỗ thật + HDF | Cao cấp |
+
+### Theo tiêu chuẩn AC (Abrasion Class)
+
+| Cấp | Độ bền | Ứng dụng |
+|-----|--------|----------|
+| AC3 | 2.500 vòng | Phòng ngủ |
+| AC4 | 4.000 vòng | Phòng khách |
+| AC5 | 6.500 vòng | Văn phòng |
+| AC6 | 8.500 vòng | Thương mại |
+
+## Độ dày khuyến nghị
+
+- **8mm**: Cơ bản, phòng ít đi lại
+- **10mm**: Tiêu chuẩn, phù hợp đa số
+- **12mm**: Cao cấp, cách âm tốt
+
+## Màu sắc phổ biến 2024
+
+1. **Oak tự nhiên**: Sáng, hiện đại
+2. **Walnut**: Nâu trầm, sang trọng
+3. **Grey wash**: Xám, Scandinavian
+4. **Herringbone**: Xương cá, cổ điển
+
+## Thương hiệu uy tín tại VN
+
+| Hãng | Xuất xứ | Phân khúc | Giá (VNĐ/m²) |
+|------|---------|-----------|--------------|
+| Pergo | Bỉ | Cao cấp | 650-900k |
+| Egger | Đức | Cao cấp | 550-750k |
+| Kronoswiss | Thụy Sĩ | Trung-cao | 450-650k |
+| Inovar | Malaysia | Trung cấp | 280-400k |
+| Wilson | Việt Nam | Phổ thông | 180-280k |
+
+## Chi phí lắp đặt
+
+| Hạng mục | Đơn giá |
+|----------|---------|
+| Sàn gỗ | 250-700k/m² |
+| Xốp lót | 15-25k/m² |
+| Len chân tường | 30-50k/md |
+| Nhân công | 35-50k/m² |
+| Nẹp nhôm | 80-150k/md |
+
+**Tổng chi phí:** 350-850k/m² (tùy loại sàn)
+
+## Lưu ý khi lắp đặt
+
+1. **Để sàn thích nghi** 48h trước khi lắp
+2. **Kiểm tra độ ẩm** sàn bê tông (<12%)
+3. **Chừa khe giãn nở** 8-10mm quanh tường
+4. **Lắp đúng hướng** ánh sáng chính
+
+## Bảo quản
+
+- Lau bằng khăn ẩm, không đẫm nước
+- Dùng miếng lót chân bàn ghế
+- Tránh ánh nắng trực tiếp
+- Không dùng hóa chất mạnh
+
+## Kết luận
+
+Chọn sàn gỗ công nghiệp AC4-AC5, độ dày 10-12mm là phù hợp nhất cho căn hộ chung cư tại Việt Nam.`,
+      categoryIndex: 12, // Thiết kế nội thất
+      tagIndices: [26], // Nhà ở
+      status: 'published' as const,
+      isFeatured: false,
+      coverImage: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80',
+    },
+    {
+      title: 'Thiết kế phòng bếp nhỏ dưới 10m² - Giải pháp tối ưu không gian',
+      slug: 'thiet-ke-phong-bep-nho-duoi-10m2-toi-uu-khong-gian',
+      excerpt: 'Các mẹo và giải pháp thiết kế phòng bếp nhỏ dưới 10m² vẫn đầy đủ công năng và thẩm mỹ.',
+      content: `Bếp nhỏ là thách thức phổ biến với căn hộ chung cư Việt Nam. Bài viết này chia sẻ giải pháp thiết kế tối ưu.
+
+## Các layout bếp cho không gian nhỏ
+
+### 1. Bếp chữ I (One-wall)
+- Phù hợp: Bếp < 6m²
+- Tất cả trên một tường
+- Tiết kiệm không gian nhất
+
+### 2. Bếp chữ L
+- Phù hợp: Bếp 6-10m²
+- Tận dụng góc
+- Tam giác làm việc tốt
+
+### 3. Bếp chữ U
+- Phù hợp: Bếp 8-12m²
+- Lưu trữ tối đa
+- Cần chiều rộng ≥ 1.5m
+
+## Nguyên tắc "tam giác làm việc"
+
+\`\`\`
+       Bếp nấu
+         /\\
+        /  \\
+       /    \\
+      /______\\
+   Tủ lạnh    Bồn rửa
+
+Khoảng cách lý tưởng: 1.2-2.7m mỗi cạnh
+Tổng chu vi: 4-8m
+\`\`\`
+
+## Giải pháp tối ưu không gian
+
+### Tủ bếp trên cao kịch trần
+- Tận dụng chiều cao
+- Lưu trữ đồ ít dùng ở trên
+
+### Tủ góc xoay (lazy susan)
+- Tận dụng góc chết
+- Dễ lấy đồ
+
+### Kệ mở thay tủ kín
+- Tạo cảm giác thoáng
+- Chi phí thấp hơn
+
+### Đảo bếp di động
+- Thêm mặt bàn khi cần
+- Đẩy gọn khi không dùng
+
+## Thiết bị âm tủ
+
+| Thiết bị | Kích thước compact | Ghi chú |
+|----------|-------------------|---------|
+| Bếp từ | 60cm | 2 vùng nấu đủ dùng |
+| Lò nướng | 45cm cao | Thay vì 60cm |
+| Máy rửa bát | 45cm rộng | Slimline |
+| Tủ lạnh | 60cm rộng | Side-by-side không phù hợp |
+
+## Màu sắc & Ánh sáng
+
+### Màu sáng mở rộng không gian
+- Trắng, kem, ghi nhạt
+- Mặt bếp sáng màu
+- Backsplash gương/kính
+
+### Ánh sáng đúng cách
+- Đèn âm trần: Chiếu sáng chung
+- Đèn LED dưới tủ: Chiếu bàn bếp
+- Không gian nhỏ cần ≥ 500 lux
+
+## Chi phí tham khảo (bếp 8m²)
+
+| Hạng mục | Giá VNĐ |
+|----------|---------|
+| Tủ bếp laminate | 25-40 triệu |
+| Tủ bếp acrylic | 40-60 triệu |
+| Mặt đá nhân tạo | 3-5 triệu/md |
+| Thiết bị (bếp, hút mùi) | 15-30 triệu |
+| Nhân công | 5-8 triệu |
+| **Tổng** | **50-150 triệu** |
+
+## Sai lầm cần tránh
+
+❌ Tủ bếp quá sâu (>60cm)
+❌ Không có hút mùi
+❌ Thiếu ổ cắm điện
+❌ Đèn chiếu sáng không đủ
+❌ Màu tối toàn bộ
+
+## Kết luận
+
+Bếp nhỏ vẫn có thể đầy đủ công năng nếu thiết kế thông minh. Ưu tiên layout chữ L, màu sáng và thiết bị compact.`,
+      categoryIndex: 12, // Thiết kế nội thất
+      tagIndices: [26], // Nhà ở
+      status: 'published' as const,
+      isFeatured: false,
+      coverImage: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&q=80',
+    },
+    {
+      title: 'So sánh các loại rèm cửa phổ biến: Rèm vải, rèm gỗ, rèm cầu vồng',
+      slug: 'so-sanh-cac-loai-rem-cua-pho-bien',
+      excerpt: 'Phân tích ưu nhược điểm của các loại rèm cửa phổ biến: rèm vải, rèm gỗ, rèm cầu vồng (combi), rèm Roman để chọn phù hợp.',
+      content: `Rèm cửa không chỉ che nắng mà còn là điểm nhấn trang trí quan trọng. Hãy cùng so sánh các loại rèm phổ biến.
+
+## 1. Rèm vải (Curtain)
+
+### Phân loại
+- **Vải cotton**: Tự nhiên, dễ giặt
+- **Vải polyester**: Bền, ít nhăn
+- **Vải nhung**: Sang trọng, cách nhiệt tốt
+- **Vải linen**: Thoáng, phong cách tự nhiên
+
+### Ưu điểm
+✅ Đa dạng màu sắc, họa tiết
+✅ Cách nhiệt, cách âm tốt
+✅ Tạo cảm giác ấm cúng
+✅ Giá đa dạng
+
+### Nhược điểm
+❌ Bám bụi, cần giặt định kỳ
+❌ Chiếm không gian khi mở
+❌ Có thể phai màu
+
+### Giá tham khảo
+- Vải thường: 150-250k/m²
+- Vải cao cấp: 350-600k/m²
+- May + lắp đặt: 80-120k/m²
+
+## 2. Rèm gỗ (Wooden Blinds)
+
+### Phân loại
+- **Gỗ tự nhiên**: Basswood, bamboo
+- **Gỗ giả (Faux wood)**: PVC, composite
+
+### Ưu điểm
+✅ Sang trọng, tự nhiên
+✅ Điều chỉnh ánh sáng linh hoạt
+✅ Không gian gọn khi mở
+✅ Bền, dễ lau chùi
+
+### Nhược điểm
+❌ Giá cao
+❌ Không cách nhiệt bằng vải
+❌ Có thể cong vênh (gỗ thật)
+
+### Giá tham khảo
+- Gỗ giả: 350-500k/m²
+- Gỗ tự nhiên: 600-1.200k/m²
+
+## 3. Rèm cầu vồng (Combi/Zebra)
+
+### Cấu tạo
+Hai lớp vải xen kẽ trong suốt và đục, điều chỉnh ánh sáng bằng cách xoay.
+
+### Ưu điểm
+✅ Hiện đại, thẩm mỹ cao
+✅ Điều chỉnh ánh sáng đa dạng
+✅ Gọn gàng
+✅ Dễ vệ sinh
+
+### Nhược điểm
+❌ Cách nhiệt trung bình
+❌ Giá trung bình-cao
+❌ Sửa chữa phức tạp nếu hỏng
+
+### Giá tham khảo
+- Loại thường: 250-400k/m²
+- Loại cao cấp: 450-700k/m²
+
+## 4. Rèm Roman
+
+### Đặc điểm
+Rèm vải xếp lớp ngang khi kéo lên.
+
+### Ưu điểm
+✅ Thanh lịch, cổ điển
+✅ Tạo điểm nhấn
+✅ Nhiều kiểu dáng
+
+### Nhược điểm
+❌ Giá cao do may phức tạp
+❌ Khó vệ sinh
+❌ Cơ chế dễ hỏng
+
+### Giá tham khảo: 400-800k/m²
+
+## Bảng so sánh tổng hợp
+
+| Tiêu chí | Rèm vải | Rèm gỗ | Rèm cầu vồng | Rèm Roman |
+|----------|---------|--------|--------------|-----------|
+| Thẩm mỹ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Cách nhiệt | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Vệ sinh | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ |
+| Giá | ⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐ |
+| Độ bền | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+
+## Gợi ý theo không gian
+
+| Không gian | Loại rèm phù hợp |
+|------------|------------------|
+| Phòng khách | Rèm vải + voan, Rèm gỗ |
+| Phòng ngủ | Rèm vải cản sáng, Rèm Roman |
+| Phòng làm việc | Rèm cầu vồng, Rèm gỗ |
+| Nhà bếp | Rèm gỗ giả (chống ẩm) |
+| Phòng tắm | Rèm nhựa, Rèm gỗ giả |
+
+## Kết luận
+
+Không có loại rèm hoàn hảo cho mọi không gian. Hãy cân nhắc nhu cầu cách nhiệt, thẩm mỹ và ngân sách để lựa chọn phù hợp.`,
+      categoryIndex: 12, // Thiết kế nội thất
+      tagIndices: [26], // Nhà ở
+      status: 'published' as const,
+      isFeatured: false,
+      coverImage: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=1200&q=80',
+    },
+    {
+      title: 'Ánh sáng trong thiết kế nội thất - Từ cơ bản đến nâng cao',
+      slug: 'anh-sang-trong-thiet-ke-noi-that-co-ban-nang-cao',
+      excerpt: 'Hướng dẫn toàn diện về thiết kế ánh sáng trong nội thất: các loại đèn, nhiệt độ màu, cách bố trí và ứng dụng cho từng không gian.',
+      content: `Ánh sáng là yếu tố quan trọng nhất trong thiết kế nội thất - nó định hình không gian, tạo cảm xúc và ảnh hưởng đến sức khỏe.
+
+## Các tầng ánh sáng (Layers of Light)
+
+### 1. Ambient Light (Ánh sáng nền)
+- Chiếu sáng chung toàn phòng
+- Đèn trần, đèn âm trần, đèn cây
+
+### 2. Task Light (Ánh sáng chức năng)
+- Chiếu sáng khu vực làm việc
+- Đèn bàn, đèn dưới tủ bếp
+
+### 3. Accent Light (Ánh sáng điểm nhấn)
+- Tạo điểm nhấn trang trí
+- Đèn rọi tranh, đèn LED dây
+
+## Nhiệt độ màu (Color Temperature)
+
+| Kelvin | Màu sắc | Cảm giác | Phù hợp |
+|--------|---------|----------|---------|
+| 2700K | Vàng ấm | Thư giãn | Phòng ngủ, phòng khách |
+| 3000K | Trắng ấm | Thoải mái | Nhà ở nói chung |
+| 4000K | Trắng trung tính | Tập trung | Phòng làm việc, bếp |
+| 5000K+ | Trắng lạnh | Tỉnh táo | Không khuyến nghị cho nhà ở |
+
+## Đơn vị đo lường
+
+### Lumen (lm) - Độ sáng
+- Phòng ngủ: 2.000-4.000 lm
+- Phòng khách: 3.000-6.000 lm
+- Bếp: 4.000-8.000 lm
+- Phòng làm việc: 3.000-6.000 lm
+
+### Lux (lx) - Độ rọi
+- Phòng khách: 150-300 lux
+- Phòng ngủ: 100-200 lux
+- Bàn làm việc: 300-500 lux
+- Bếp nấu: 300-500 lux
+
+### CRI (Chỉ số hoàn màu)
+- CRI > 80: Đạt yêu cầu
+- CRI > 90: Tốt
+- CRI > 95: Xuất sắc (gallery, showroom)
+
+## Các loại đèn phổ biến
+
+### Đèn LED âm trần (Downlight)
+\`\`\`
+Ưu điểm: Gọn, phổ biến, tiết kiệm điện
+Khoảng cách: 1.5-2m/đèn
+Công suất: 7-12W/đèn
+Giá: 50-200k/đèn
+\`\`\`
+
+### Đèn LED Panel
+\`\`\`
+Ưu điểm: Ánh sáng đều, không chói
+Kích thước: 30x30, 60x60, 30x120cm
+Phù hợp: Văn phòng, bếp
+Giá: 200-500k/đèn
+\`\`\`
+
+### Đèn thả (Pendant)
+\`\`\`
+Ưu điểm: Trang trí, điểm nhấn
+Vị trí: Bàn ăn, đảo bếp, hành lang
+Độ cao: Cách mặt bàn 75-90cm
+Giá: 500k-5 triệu/đèn
+\`\`\`
+
+### Đèn LED dây (Strip)
+\`\`\`
+Ưu điểm: Linh hoạt, tạo hiệu ứng
+Ứng dụng: Hắt trần, dưới tủ, kệ
+Công suất: 4.8-14.4W/m
+Giá: 50-150k/m
+\`\`\`
+
+## Thiết kế theo không gian
+
+### Phòng khách
+\`\`\`
+- Ambient: Đèn trần/đèn cây 3000K
+- Task: Đèn đọc sách 2700-3000K
+- Accent: Đèn rọi tranh, LED dây
+- Tổng: 4000-6000 lumen
+\`\`\`
+
+### Phòng ngủ
+\`\`\`
+- Ambient: Đèn trần dimmer 2700K
+- Task: Đèn đầu giường 2700K
+- Accent: LED hắt sau đầu giường
+- Tổng: 2000-3000 lumen
+\`\`\`
+
+### Phòng bếp
+\`\`\`
+- Ambient: Đèn âm trần 4000K
+- Task: Đèn LED dưới tủ trên 4000K
+- Accent: Đèn thả trên đảo bếp
+- Tổng: 5000-8000 lumen
+\`\`\`
+
+## Smart Lighting
+
+### Tunable White
+- Điều chỉnh nhiệt độ màu theo giờ
+- Sáng: 4000K, Tối: 2700K
+- Hỗ trợ nhịp sinh học
+
+### Scene Control
+- Cài sẵn các cảnh: Đọc sách, Xem phim, Tiệc
+- Điều khiển qua app/giọng nói
+
+## Chi phí tham khảo (căn hộ 70m²)
+
+| Hạng mục | Số lượng | Đơn giá | Thành tiền |
+|----------|----------|---------|------------|
+| Đèn âm trần LED | 15 | 150k | 2.250k |
+| Đèn thả bàn ăn | 1 | 2.000k | 2.000k |
+| Đèn LED dây | 20m | 100k | 2.000k |
+| Đèn đọc sách | 2 | 500k | 1.000k |
+| Công lắp đặt | - | - | 2.000k |
+| **Tổng** | | | **9.250k** |
+
+## Kết luận
+
+Thiết kế ánh sáng tốt cần kết hợp 3 tầng (ambient, task, accent) với nhiệt độ màu phù hợp. Đầu tư vào ánh sáng chất lượng sẽ nâng tầm toàn bộ không gian sống.`,
+      categoryIndex: 12, // Thiết kế nội thất
+      tagIndices: [26, 20], // Nhà ở, Tiết kiệm năng lượng
+      status: 'published' as const,
+      isFeatured: true,
+      coverImage: 'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=1200&q=80',
     },
   ];
 
