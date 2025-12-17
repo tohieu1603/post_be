@@ -27,8 +27,7 @@ const settingsSchema = new Schema<ISettings>(
   }
 );
 
-// Indexes
-settingsSchema.index({ key: 1 });
+// Indexes (key already indexed via unique: true)
 settingsSchema.index({ category: 1 });
 
 export const Settings = mongoose.model<ISettings>('Settings', settingsSchema);

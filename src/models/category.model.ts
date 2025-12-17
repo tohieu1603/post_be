@@ -53,8 +53,7 @@ categorySchema.virtual('posts', {
   foreignField: 'categoryId',
 });
 
-// Index for faster queries
-categorySchema.index({ slug: 1 });
+// Index for faster queries (slug already indexed via unique: true)
 categorySchema.index({ parentId: 1 });
 categorySchema.index({ isActive: 1 });
 

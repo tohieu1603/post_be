@@ -28,8 +28,7 @@ const redirectSchema = new Schema<IRedirect>(
   }
 );
 
-// Indexes
-redirectSchema.index({ fromPath: 1 });
+// Indexes (fromPath already indexed via unique: true)
 redirectSchema.index({ isActive: 1 });
 
 export const Redirect = mongoose.model<IRedirect>('Redirect', redirectSchema);

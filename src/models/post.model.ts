@@ -168,8 +168,7 @@ postSchema.virtual('category', {
   justOne: true,
 });
 
-// Indexes
-postSchema.index({ slug: 1 });
+// Indexes (slug already indexed via unique: true)
 postSchema.index({ status: 1 });
 postSchema.index({ categoryId: 1 });
 postSchema.index({ publishedAt: -1 });

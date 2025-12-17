@@ -26,8 +26,7 @@ const tagSchema = new Schema<ITag>(
   }
 );
 
-// Index for faster queries
-tagSchema.index({ slug: 1 });
+// Index for faster queries (name, slug already indexed via unique: true)
 tagSchema.index({ isActive: 1 });
 
 export const Tag = mongoose.model<ITag>('Tag', tagSchema);

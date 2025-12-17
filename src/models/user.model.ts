@@ -39,8 +39,7 @@ userSchema.virtual('activityLogs', {
   foreignField: 'userId',
 });
 
-// Indexes
-userSchema.index({ email: 1 });
+// Indexes (email already indexed via unique: true)
 userSchema.index({ role: 1 });
 userSchema.index({ isActive: 1 });
 
