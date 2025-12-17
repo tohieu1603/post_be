@@ -119,6 +119,32 @@ router.post('/generate-slug', categoryController.generateSlug);
 
 /**
  * @swagger
+ * /categories/slug/{slug}:
+ *   get:
+ *     summary: Lấy thông tin danh mục theo slug
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: slug
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "vat-lieu-xay-dung"
+ *         description: Slug của danh mục
+ *     responses:
+ *       200:
+ *         description: Thông tin danh mục
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Category'
+ *       404:
+ *         description: Không tìm thấy danh mục
+ */
+router.get('/slug/:slug', categoryController.getBySlug);
+
+/**
+ * @swagger
  * /categories/{id}:
  *   get:
  *     summary: Lấy thông tin danh mục theo ID

@@ -77,6 +77,25 @@ export class CategoryController {
   };
 
   /**
+   * GET /api/categories/slug/:slug
+   * Get category by slug
+   */
+  getBySlug = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { slug } = req.params;
+      const category = await categoryService.getBySlug(slug);
+
+      if (!category) {
+        return notFoundResponse(res, 'Category');
+      }
+
+      return res.json(category);
+    } catch (error) {
+      return errorResponse(res, 'Failed to fetch category', 500);
+    }
+  };
+
+  /**
    * POST /api/categories
    * Create new category
    */

@@ -37,6 +37,13 @@ export class CategoryService {
   }
 
   /**
+   * Get category by slug
+   */
+  async getBySlug(slug: string): Promise<ICategory | null> {
+    return categoryRepository.findBySlug(slug);
+  }
+
+  /**
    * Create new category with auto-generated slug
    */
   async create(dto: CreateCategoryDto): Promise<ICategory> {
