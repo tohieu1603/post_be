@@ -1,4 +1,10 @@
 import swaggerJsdoc from 'swagger-jsdoc';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const PORT = process.env.PORT || 5445;
+const HOST = process.env.HOST || 'localhost';
 
 const options: swaggerJsdoc.Options = {
   definition: {
@@ -27,7 +33,7 @@ API quản lý bài viết với đầy đủ tính năng:
     },
     servers: [
       {
-        url: 'http://localhost:5445/api',
+        url: `http://${HOST}:${PORT}/api`,
         description: 'Development server',
       },
     ],
