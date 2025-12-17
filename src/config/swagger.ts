@@ -49,14 +49,21 @@ API quản lý bài viết với đầy đủ tính năng:
     ],
     components: {
       schemas: {
+        // MongoDB ObjectId pattern (24 hex characters)
+        ObjectId: {
+          type: 'string',
+          pattern: '^[a-fA-F0-9]{24}$',
+          example: '507f1f77bcf86cd799439011',
+          description: 'MongoDB ObjectId (24 hex characters)',
+        },
         Category: {
           type: 'object',
           properties: {
-            id: { type: 'string', format: 'uuid', description: 'ID danh mục' },
+            _id: { type: 'string', pattern: '^[a-fA-F0-9]{24}$', description: 'ID danh mục', example: '507f1f77bcf86cd799439011' },
             name: { type: 'string', description: 'Tên danh mục' },
             slug: { type: 'string', description: 'Slug (auto-generated từ tên)' },
             description: { type: 'string', nullable: true, description: 'Mô tả danh mục' },
-            parentId: { type: 'string', format: 'uuid', nullable: true, description: 'ID danh mục cha' },
+            parentId: { type: 'string', pattern: '^[a-fA-F0-9]{24}$', nullable: true, description: 'ID danh mục cha' },
             sortOrder: { type: 'integer', description: 'Thứ tự sắp xếp' },
             isActive: { type: 'boolean', description: 'Trạng thái hoạt động' },
             createdAt: { type: 'string', format: 'date-time' },
@@ -72,7 +79,7 @@ API quản lý bài viết với đầy đủ tính năng:
             name: { type: 'string', description: 'Tên danh mục (bắt buộc)', example: 'Công nghệ' },
             slug: { type: 'string', description: 'Slug (tự động tạo nếu bỏ trống)', example: 'cong-nghe' },
             description: { type: 'string', description: 'Mô tả', example: 'Danh mục về công nghệ' },
-            parentId: { type: 'string', format: 'uuid', description: 'ID danh mục cha' },
+            parentId: { type: 'string', pattern: '^[a-fA-F0-9]{24}$', description: 'ID danh mục cha' },
             sortOrder: { type: 'integer', default: 0, description: 'Thứ tự sắp xếp' },
             isActive: { type: 'boolean', default: true, description: 'Trạng thái hoạt động' },
           },
@@ -80,13 +87,13 @@ API quản lý bài viết với đầy đủ tính năng:
         Post: {
           type: 'object',
           properties: {
-            id: { type: 'string', format: 'uuid' },
+            _id: { type: 'string', pattern: '^[a-fA-F0-9]{24}$', example: '507f1f77bcf86cd799439011' },
             title: { type: 'string', description: 'Tiêu đề bài viết' },
             slug: { type: 'string', description: 'Slug (auto-generated từ tiêu đề)' },
             excerpt: { type: 'string', nullable: true, description: 'Tóm tắt ngắn' },
             content: { type: 'string', description: 'Nội dung (Markdown)' },
             coverImage: { type: 'string', nullable: true, description: 'URL ảnh bìa' },
-            categoryId: { type: 'string', format: 'uuid', description: 'ID danh mục' },
+            categoryId: { type: 'string', pattern: '^[a-fA-F0-9]{24}$', description: 'ID danh mục' },
             status: { type: 'string', enum: ['draft', 'published', 'archived'], description: 'Trạng thái' },
             publishedAt: { type: 'string', format: 'date-time', nullable: true },
             viewCount: { type: 'integer', description: 'Lượt xem' },
@@ -121,7 +128,7 @@ API quản lý bài viết với đầy đủ tính năng:
             excerpt: { type: 'string', description: 'Tóm tắt' },
             content: { type: 'string', description: 'Nội dung Markdown (bắt buộc)' },
             coverImage: { type: 'string', description: 'URL ảnh bìa' },
-            categoryId: { type: 'string', format: 'uuid', description: 'ID danh mục (bắt buộc)' },
+            categoryId: { type: 'string', pattern: '^[a-fA-F0-9]{24}$', description: 'ID danh mục (bắt buộc)', example: '507f1f77bcf86cd799439011' },
             status: { type: 'string', enum: ['draft', 'published', 'archived'], default: 'draft' },
             metaTitle: { type: 'string' },
             metaDescription: { type: 'string' },

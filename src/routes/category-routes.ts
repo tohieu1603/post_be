@@ -129,7 +129,7 @@ router.post('/generate-slug', categoryController.generateSlug);
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *         description: ID danh mục
  *     responses:
  *       200:
@@ -182,7 +182,7 @@ router.post('/', requireAuth, requirePermission('category:manage'), validate(cat
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     requestBody:
  *       content:
  *         application/json:
@@ -212,7 +212,7 @@ router.put('/:id', requireAuth, requirePermission('category:manage'), validate([
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     responses:
  *       200:
  *         description: Xóa thành công
@@ -235,7 +235,7 @@ router.delete('/:id', requireAuth, requirePermission('category:manage'), validat
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     responses:
  *       200:
  *         description: Trạng thái đã được cập nhật

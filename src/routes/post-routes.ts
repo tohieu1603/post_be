@@ -34,7 +34,7 @@ const router = Router();
  *         name: categoryId
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *         description: Lọc theo danh mục
  *       - in: query
  *         name: status
@@ -156,7 +156,7 @@ router.post('/generate-slug', postController.generateSlug);
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *       - in: query
  *         name: limit
  *         schema:
@@ -206,7 +206,7 @@ router.get('/slug/:slug', postController.getBySlug);
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     responses:
  *       200:
  *         description: Thông tin bài viết
@@ -261,7 +261,7 @@ router.post('/', requireAuth, requirePermission('post:create_draft'), validate(p
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     requestBody:
  *       content:
  *         application/json:
@@ -287,7 +287,7 @@ router.put('/:id', requireAuth, requirePermission('post:edit_own'), validate([is
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     responses:
  *       200:
  *         description: Xóa thành công
@@ -309,7 +309,7 @@ router.delete('/:id', requireAuth, requirePermission('post:delete'), validate([i
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     requestBody:
  *       required: true
  *       content:
@@ -342,7 +342,7 @@ router.patch('/:id/status', requireAuth, requirePermission('post:publish'), vali
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     responses:
  *       200:
  *         description: Cấu trúc nội dung
@@ -361,7 +361,7 @@ router.get('/:id/structure', postController.getStructure);
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     requestBody:
  *       required: true
  *       content:
@@ -434,7 +434,7 @@ router.post('/:id/structure/to-html', postController.structureToHtml);
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     responses:
  *       200:
  *         description: Structure đã sync
@@ -453,7 +453,7 @@ router.post('/:id/structure/sync', postController.syncStructureFromContent);
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     requestBody:
  *       required: true
  *       content:
@@ -483,7 +483,7 @@ router.post('/:id/structure/section', postController.addSection);
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *       - in: path
  *         name: sectionId
  *         required: true
@@ -516,7 +516,7 @@ router.put('/:id/structure/section/:sectionId', postController.updateSection);
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *       - in: path
  *         name: sectionId
  *         required: true
@@ -540,7 +540,7 @@ router.delete('/:id/structure/section/:sectionId', postController.removeSection)
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
+ *           pattern: "^[a-fA-F0-9]{24}$"
  *     requestBody:
  *       required: true
  *       content:
