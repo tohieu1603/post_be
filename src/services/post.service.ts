@@ -172,6 +172,17 @@ export class PostService {
   }
 
   /**
+   * Get posts by category slug
+   */
+  async getByCategorySlug(
+    categorySlug: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedResponse<IPost> | null> {
+    return postRepository.findByCategorySlug(categorySlug, page, limit);
+  }
+
+  /**
    * Get recent posts
    */
   async getRecent(limit = 5): Promise<IPost[]> {

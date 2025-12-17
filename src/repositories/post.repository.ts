@@ -157,6 +157,47 @@ export class PostRepository {
   }
 
   /**
+   * Find posts by category slug
+   */
+  async findByCategorySlug(
+    categorySlug: string,
+    page = 1,
+    limit = 10
+  ): Promise<{ data: IPost[]; pagination: { page: number; limit: number; total: number; totalPages: number } } | null> {
+    // First find category by slug
+    const { Category } = await import('../models/category.model');
+    const category = await Category.findOne({ slug: categorySlug, isActive: true });
+
+    if (!category) return null;
+
+    const skip = (page - 1) * limit;
+    const total = await Post.countDocuments({
+      categoryId: category._id,
+      status: 'published',
+    });
+
+    const docs = await Post.find({
+      categoryId: category._id,
+      status: 'published',
+    })
+      .populate('category')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean({ virtuals: true });
+
+    return {
+      data: addIdArray(docs) as unknown as IPost[],
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
    * Find recent posts
    */
   async findRecent(limit = 5): Promise<IPost[]> {

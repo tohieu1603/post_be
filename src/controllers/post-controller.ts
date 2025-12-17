@@ -217,6 +217,28 @@ export class PostController {
   };
 
   /**
+   * GET /api/posts/category-slug/:categorySlug
+   * Get posts by category slug
+   */
+  getByCategorySlug = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { categorySlug } = req.params;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const result = await postService.getByCategorySlug(categorySlug, page, limit);
+
+      if (!result) {
+        return notFoundResponse(res, 'Category');
+      }
+
+      return res.json(result);
+    } catch (error) {
+      return errorResponse(res, 'Failed to fetch posts', 500);
+    }
+  };
+
+  /**
    * POST /api/posts/generate-slug
    * Generate slug preview from title
    */

@@ -146,27 +146,37 @@ router.post('/generate-slug', postController.generateSlug);
 
 /**
  * @swagger
- * /posts/category/{categoryId}:
+ * /posts/category/{slug}:
  *   get:
- *     summary: Lấy bài viết theo danh mục
+ *     summary: Lấy bài viết theo slug danh mục
  *     tags: [Posts]
  *     parameters:
  *       - in: path
- *         name: categoryId
+ *         name: slug
  *         required: true
  *         schema:
  *           type: string
- *           pattern: "^[a-fA-F0-9]{24}$"
+ *         example: "vat-lieu-xay-dung"
+ *         description: Slug của danh mục
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Trang hiện tại
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
- *         description: Giới hạn số bài viết
+ *           default: 10
+ *         description: Số bài viết mỗi trang
  *     responses:
  *       200:
  *         description: Danh sách bài viết trong danh mục
+ *       404:
+ *         description: Không tìm thấy danh mục
  */
-router.get('/category/:categoryId', postController.getByCategory);
+router.get('/category/:slug', postController.getByCategorySlug);
 
 /**
  * @swagger
