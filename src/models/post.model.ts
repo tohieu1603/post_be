@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
+import { parseContentMetadata } from '../utils/markdown.util';
 
 // === Content Structure Types ===
 export interface TocItem {
@@ -56,12 +57,9 @@ export interface ContentSection {
 }
 
 export interface ContentStructure {
-  summary?: string;
   toc: TocItem[];
-  sections: ContentSection[];
-  wordCount?: number;
-  estimatedReadTime?: number;
-  lastStructureUpdate?: string;
+  wordCount: number;
+  readingTime: number;
 }
 
 export type PostStatus = 'draft' | 'published' | 'archived';
@@ -104,15 +102,16 @@ export interface IPost extends Document {
   robots: string | null;          // index,follow | noindex,follow | etc.
   newsKeywords: string | null;    // Google News keywords (deprecated but still used)
   isEvergreen: boolean;           // Bài không có tính thời sự
-  wordCount: number | null;       // Số từ trong bài
   // Advanced Options
   isFeatured: boolean;
   allowComments: boolean;
   readingTime: number | null;
   template: string | null;
   customFields: Record<string, any> | null;
-  // Content Structure
+  // Content Structure - Auto-generated from content
   contentStructure: ContentStructure | null;
+  // FAQ - Separate field for easy access
+  faq: FaqItem[] | null;
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -155,15 +154,31 @@ const postSchema = new Schema<IPost>(
     robots: { type: String, default: 'index,follow', maxlength: 100 },
     newsKeywords: { type: String, default: null, maxlength: 500 },
     isEvergreen: { type: Boolean, default: false },
-    wordCount: { type: Number, default: null },
     // Advanced Options
     isFeatured: { type: Boolean, default: false },
     allowComments: { type: Boolean, default: true },
     readingTime: { type: Number, default: null },
     template: { type: String, default: null, maxlength: 100 },
     customFields: { type: Schema.Types.Mixed, default: null },
-    // Content Structure
-    contentStructure: { type: Schema.Types.Mixed, default: null },
+    // Content Structure - Auto-generated from content
+    contentStructure: {
+      type: {
+        toc: [{
+          id: { type: String, required: true },
+          text: { type: String, required: true },
+          level: { type: Number, required: true },
+          anchor: { type: String, required: true },
+        }],
+        wordCount: { type: Number },
+        readingTime: { type: Number },
+      },
+      default: null,
+    },
+    // FAQ - Array of question/answer pairs
+    faq: [{
+      question: { type: String, required: true },
+      answer: { type: String, required: true },
+    }],
   },
   {
     timestamps: true,
@@ -188,12 +203,24 @@ postSchema.virtual('authorInfo', {
   justOne: true,
 });
 
-// Pre-save middleware: auto-set publishedAt when status is 'published'
+// Pre-save middleware: auto-set publishedAt and generate contentStructure
 postSchema.pre('save', function (next) {
   // If status is 'published' and publishedAt is not set, set it to now
   if (this.status === 'published' && !this.publishedAt) {
     this.publishedAt = new Date();
   }
+
+  // Auto-generate contentStructure from content
+  if (this.content) {
+    const metadata = parseContentMetadata(this.content);
+    this.contentStructure = {
+      toc: metadata.toc,
+      wordCount: metadata.wordCount,
+      readingTime: metadata.readingTime,
+    };
+    this.readingTime = metadata.readingTime;
+  }
+
   next();
 });
 
@@ -201,13 +228,31 @@ postSchema.pre('save', function (next) {
 postSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function (next) {
   const update = this.getUpdate() as any;
   if (update) {
-    // Handle $set operator
+    // Handle $set operator for publishedAt
     if (update.$set?.status === 'published' && !update.$set?.publishedAt) {
       update.$set.publishedAt = new Date();
     }
-    // Handle direct update
+    // Handle direct update for publishedAt
     if (update.status === 'published' && !update.publishedAt) {
       update.publishedAt = new Date();
+    }
+
+    // Auto-generate contentStructure when content is updated
+    const content = update.$set?.content || update.content;
+    if (content) {
+      const metadata = parseContentMetadata(content);
+      const contentStructure = {
+        toc: metadata.toc,
+        wordCount: metadata.wordCount,
+        readingTime: metadata.readingTime,
+      };
+      if (update.$set) {
+        update.$set.contentStructure = contentStructure;
+        update.$set.readingTime = metadata.readingTime;
+      } else {
+        update.contentStructure = contentStructure;
+        update.readingTime = metadata.readingTime;
+      }
     }
   }
   next();
