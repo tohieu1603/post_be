@@ -9,6 +9,12 @@ export interface ICategory extends Document {
   sortOrder: number;
   isActive: boolean;
   viewCount: number;
+  // SEO fields
+  seoTitle: string | null;
+  seoDescription: string | null;
+  ogImage: string | null;
+  path: string | null;           // Đường dẫn phân cấp: /tin-tuc/cong-nghe
+  level: number;                 // Cấp độ phân cấp: 0, 1, 2
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +28,12 @@ const categorySchema = new Schema<ICategory>(
     sortOrder: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
     viewCount: { type: Number, default: 0 },
+    // SEO fields
+    seoTitle: { type: String, default: null, maxlength: 70 },
+    seoDescription: { type: String, default: null, maxlength: 160 },
+    ogImage: { type: String, default: null, maxlength: 1000 },
+    path: { type: String, default: null, maxlength: 500 },
+    level: { type: Number, default: 0 },
   },
   {
     timestamps: true,

@@ -8,17 +8,29 @@ export interface MetaTagsConfig {
   defaultOgImage?: string;
 }
 
+export interface AuthorInfo {
+  name: string;
+  slug?: string;
+  jobTitle?: string | null;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  sameAs?: string[];
+}
+
 export interface PostMeta {
   title: string;
   excerpt?: string | null;
   content?: string;
   coverImage?: string | null;
   author?: string | null;
+  authorInfo?: AuthorInfo | null;  // E-E-A-T author data
   publishedAt?: string | null;
   updatedAt?: string;
   categoryName?: string;
   categorySlug?: string;
   tags?: string[];
+  wordCount?: number | null;
+  isNews?: boolean;  // true = NewsArticle, false = Article
   // Override fields (if set, use these instead of auto-generated)
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -26,6 +38,7 @@ export interface PostMeta {
   ogDescription?: string | null;
   ogImage?: string | null;
   canonicalUrl?: string | null;
+  robots?: string | null;
 }
 
 export interface GeneratedMeta {
@@ -116,13 +129,123 @@ export function generatePostMeta(
 }
 
 /**
+ * Generate Person schema for author (E-E-A-T)
+ */
+export function generatePersonSchema(
+  author: AuthorInfo,
+  config: MetaTagsConfig
+): object {
+  const schema: Record<string, unknown> = {
+    '@type': 'Person',
+    name: author.name,
+  };
+
+  if (author.slug) {
+    schema.url = `${config.siteUrl}/tac-gia/${author.slug}`;
+  }
+
+  if (author.jobTitle) {
+    schema.jobTitle = author.jobTitle;
+  }
+
+  if (author.avatarUrl) {
+    schema.image = author.avatarUrl;
+  }
+
+  if (author.sameAs && author.sameAs.length > 0) {
+    schema.sameAs = author.sameAs;
+  }
+
+  return schema;
+}
+
+/**
+ * Generate NewsArticle schema (JSON-LD) for news posts
+ * Use this for time-sensitive news content
+ */
+export function generateNewsArticleSchema(
+  post: PostMeta,
+  config: MetaTagsConfig & { logo?: string },
+  postUrl: string
+): object {
+  const schema: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: truncateText(post.title, 110), // Google recommends max 110 chars for NewsArticle
+    description: post.metaDescription || truncateText(stripHtml(post.excerpt || post.content || ''), 155),
+    url: `${config.siteUrl}${postUrl}`,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${config.siteUrl}${postUrl}`,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: config.siteName,
+      url: config.siteUrl,
+      logo: config.logo ? {
+        '@type': 'ImageObject',
+        url: config.logo,
+      } : undefined,
+    },
+    inLanguage: 'vi-VN',
+  };
+
+  if (post.coverImage) {
+    schema.image = [{
+      '@type': 'ImageObject',
+      url: post.coverImage,
+      width: 1200,
+      height: 630,
+    }];
+  }
+
+  // Author with E-E-A-T support
+  if (post.authorInfo) {
+    schema.author = generatePersonSchema(post.authorInfo, config);
+  } else if (post.author) {
+    schema.author = {
+      '@type': 'Person',
+      name: post.author,
+    };
+  }
+
+  if (post.publishedAt) {
+    schema.datePublished = post.publishedAt;
+  }
+
+  if (post.updatedAt) {
+    schema.dateModified = post.updatedAt;
+  }
+
+  if (post.categoryName) {
+    schema.articleSection = post.categoryName;
+  }
+
+  if (post.wordCount) {
+    schema.wordCount = post.wordCount;
+  }
+
+  if (post.tags && post.tags.length > 0) {
+    schema.keywords = post.tags.join(', ');
+  }
+
+  return schema;
+}
+
+/**
  * Generate Article schema (JSON-LD) for blog posts
+ * Use this for evergreen content
  */
 export function generateArticleSchema(
   post: PostMeta,
-  config: MetaTagsConfig,
+  config: MetaTagsConfig & { logo?: string },
   postUrl: string
 ): object {
+  // If it's news content, use NewsArticle schema
+  if (post.isNews !== false) {
+    return generateNewsArticleSchema(post, config, postUrl);
+  }
+
   const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -137,7 +260,12 @@ export function generateArticleSchema(
       '@type': 'Organization',
       name: config.siteName,
       url: config.siteUrl,
+      logo: config.logo ? {
+        '@type': 'ImageObject',
+        url: config.logo,
+      } : undefined,
     },
+    inLanguage: 'vi-VN',
   };
 
   if (post.coverImage) {
@@ -149,7 +277,10 @@ export function generateArticleSchema(
     };
   }
 
-  if (post.author) {
+  // Author with E-E-A-T support
+  if (post.authorInfo) {
+    schema.author = generatePersonSchema(post.authorInfo, config);
+  } else if (post.author) {
     schema.author = {
       '@type': 'Person',
       name: post.author,
@@ -162,6 +293,14 @@ export function generateArticleSchema(
 
   if (post.updatedAt) {
     schema.dateModified = post.updatedAt;
+  }
+
+  if (post.categoryName) {
+    schema.articleSection = post.categoryName;
+  }
+
+  if (post.wordCount) {
+    schema.wordCount = post.wordCount;
   }
 
   if (post.tags && post.tags.length > 0) {

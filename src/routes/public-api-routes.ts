@@ -8,6 +8,27 @@ import crypto from 'crypto';
 
 const router = Router();
 
+/**
+ * Ensure publishedAt is never null - fallback to createdAt or current date
+ */
+function ensurePublishedAt<T extends { publishedAt?: Date | null; createdAt?: Date }>(
+  post: T
+): T & { publishedAt: Date } {
+  return {
+    ...post,
+    publishedAt: post.publishedAt || post.createdAt || new Date(),
+  };
+}
+
+/**
+ * Transform array of posts to ensure publishedAt is never null
+ */
+function transformPosts<T extends { publishedAt?: Date | null; createdAt?: Date }>(
+  posts: T[]
+): (T & { publishedAt: Date })[] {
+  return posts.map(ensurePublishedAt);
+}
+
 // ==================== HOMEPAGE APIs ====================
 
 /**
@@ -34,13 +55,13 @@ router.get('/home/featured', async (req: Request, res: Response) => {
       status: 'published',
       isFeatured: true,
     })
-      .select('title slug excerpt coverImage publishedAt viewCount category')
+      .select('title slug excerpt coverImage publishedAt createdAt viewCount category')
       .populate('category', 'name slug')
       .sort({ publishedAt: -1 })
       .limit(limit)
       .lean();
 
-    res.json({ success: true, data: posts });
+    res.json({ success: true, data: transformPosts(posts) });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch featured posts' });
   }
@@ -72,7 +93,7 @@ router.get('/home/latest', async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      data: posts,
+      data: transformPosts(posts),
       pagination: {
         page,
         limit,
@@ -116,7 +137,7 @@ router.get('/home/sections', async (req: Request, res: Response) => {
           status: 'published',
           categoryId: { $in: categoryIds },
         })
-          .select('title slug excerpt coverImage publishedAt viewCount isFeatured')
+          .select('title slug excerpt coverImage publishedAt createdAt viewCount isFeatured')
           .sort({ isFeatured: -1, publishedAt: -1 })
           .limit(limitPerCategory)
           .lean();
@@ -127,7 +148,7 @@ router.get('/home/sections', async (req: Request, res: Response) => {
             name: category.name,
             slug: category.slug,
           },
-          posts,
+          posts: transformPosts(posts),
         };
       })
     );
@@ -181,7 +202,7 @@ router.get('/category/:slug', async (req: Request, res: Response) => {
         status: 'published',
         categoryId: { $in: categoryIds },
       })
-        .select('title slug excerpt coverImage publishedAt viewCount isFeatured category')
+        .select('title slug excerpt coverImage publishedAt createdAt viewCount isFeatured category')
         .populate('category', 'name slug')
         .sort({ isFeatured: -1, publishedAt: -1 })
         .skip(skip)
@@ -193,17 +214,29 @@ router.get('/category/:slug', async (req: Request, res: Response) => {
       }),
     ]);
 
+    const totalPages = Math.ceil(total / limit);
+    const siteUrl = process.env.SITE_URL || 'http://localhost:3000';
+    const baseUrl = `${siteUrl}/${slug}`;
+
     res.json({
       success: true,
       data: {
         category,
         subcategories,
-        posts,
+        posts: transformPosts(posts),
         pagination: {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit),
+          totalPages,
+        },
+        // SEO Pagination (rel prev/next)
+        seoPagination: {
+          canonical: page > 1 ? `${baseUrl}?page=${page}` : baseUrl,
+          prev: page > 1 ? `${baseUrl}?page=${page - 1}` : null,
+          next: page < totalPages ? `${baseUrl}?page=${page + 1}` : null,
+          // noindex for deep pagination (page > 5)
+          robots: page > 5 ? 'noindex,follow' : 'index,follow',
         },
       },
     });
@@ -238,12 +271,12 @@ router.get('/category/:slug/featured', async (req: Request, res: Response) => {
       categoryId: { $in: categoryIds },
       isFeatured: true,
     })
-      .select('title slug excerpt coverImage publishedAt viewCount')
+      .select('title slug excerpt coverImage publishedAt createdAt viewCount')
       .sort({ publishedAt: -1 })
       .limit(limit)
       .lean();
 
-    res.json({ success: true, data: posts });
+    res.json({ success: true, data: transformPosts(posts) });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch featured posts' });
   }
@@ -277,7 +310,7 @@ router.get('/tag/:slug', async (req: Request, res: Response) => {
         status: 'published',
         tagsRelation: tag._id,
       })
-        .select('title slug excerpt coverImage publishedAt viewCount category')
+        .select('title slug excerpt coverImage publishedAt createdAt viewCount category')
         .populate('category', 'name slug')
         .sort({ publishedAt: -1 })
         .skip(skip)
@@ -289,16 +322,27 @@ router.get('/tag/:slug', async (req: Request, res: Response) => {
       }),
     ]);
 
+    const totalPages = Math.ceil(total / limit);
+    const siteUrl = process.env.SITE_URL || 'http://localhost:3000';
+    const baseUrl = `${siteUrl}/tag/${slug}`;
+
     res.json({
       success: true,
       data: {
         tag,
-        posts,
+        posts: transformPosts(posts),
         pagination: {
           page,
           limit,
           total,
-          totalPages: Math.ceil(total / limit),
+          totalPages,
+        },
+        // SEO Pagination
+        seoPagination: {
+          canonical: page > 1 ? `${baseUrl}?page=${page}` : baseUrl,
+          prev: page > 1 ? `${baseUrl}?page=${page - 1}` : null,
+          next: page < totalPages ? `${baseUrl}?page=${page + 1}` : null,
+          robots: page > 5 ? 'noindex,follow' : 'index,follow',
         },
       },
     });
@@ -321,17 +365,54 @@ router.get('/post/:slug', async (req: Request, res: Response) => {
     const { slug } = req.params;
 
     const post = await Post.findOne({ slug, status: 'published' })
-      .select('title slug excerpt coverImage content publishedAt createdAt updatedAt viewCount isFeatured author readingTime contentStructure category tagsRelation')
-      .populate('category', 'name slug')
+      .select('title slug excerpt coverImage content publishedAt createdAt updatedAt viewCount isFeatured author authorId readingTime contentStructure category tagsRelation metaTitle metaDescription ogTitle ogDescription ogImage canonicalUrl robots wordCount isEvergreen')
+      .populate('category', 'name slug seoTitle seoDescription')
       .populate('tagsRelation', 'name slug color')
+      .populate('authorInfo', 'name slug jobTitle bio avatarUrl sameAs')
       .lean();
 
     if (!post) {
       return res.status(404).json({ success: false, error: 'Post not found' });
     }
 
+    const siteUrl = process.env.SITE_URL || 'http://localhost:3000';
+    const postUrl = `${siteUrl}/${post.slug}/`;
+
+    // Build breadcrumbs
+    const breadcrumbs = [
+      { name: 'Trang chủ', url: siteUrl },
+    ];
+    if ((post as any).category) {
+      breadcrumbs.push({
+        name: (post as any).category.name,
+        url: `${siteUrl}/${(post as any).category.slug}/`,
+      });
+    }
+    breadcrumbs.push({
+      name: post.title,
+      url: postUrl,
+    });
+
     // Note: viewCount is incremented via /public/track endpoint to enable session deduplication
-    res.json({ success: true, data: post });
+    res.json({
+      success: true,
+      data: post,
+      // SEO data for frontend
+      seo: {
+        title: post.metaTitle || `${post.title} | ManagePost`,
+        description: post.metaDescription || post.excerpt?.substring(0, 160),
+        canonical: post.canonicalUrl || postUrl,
+        robots: post.robots || 'index,follow',
+        og: {
+          type: 'article',
+          title: post.ogTitle || post.title,
+          description: post.ogDescription || post.metaDescription || post.excerpt?.substring(0, 200),
+          image: post.ogImage || post.coverImage,
+          url: postUrl,
+        },
+        breadcrumbs,
+      },
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch post' });
   }
@@ -364,13 +445,13 @@ router.get('/post/:slug/related', async (req: Request, res: Response) => {
         { tagsRelation: { $in: currentPost.tagsRelation || [] } },
       ],
     })
-      .select('title slug excerpt coverImage publishedAt viewCount category')
+      .select('title slug excerpt coverImage publishedAt createdAt viewCount category')
       .populate('category', 'name slug')
       .sort({ publishedAt: -1 })
       .limit(limit)
       .lean();
 
-    res.json({ success: true, data: relatedPosts });
+    res.json({ success: true, data: transformPosts(relatedPosts) });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch related posts' });
   }
@@ -427,7 +508,7 @@ router.get('/search', async (req: Request, res: Response) => {
 
     const [posts, total] = await Promise.all([
       Post.find(query)
-        .select('title slug excerpt coverImage publishedAt viewCount category')
+        .select('title slug excerpt coverImage publishedAt createdAt viewCount category')
         .populate('category', 'name slug')
         .sort({ publishedAt: -1 })
         .skip(skip)
@@ -440,7 +521,7 @@ router.get('/search', async (req: Request, res: Response) => {
       success: true,
       data: {
         query: q,
-        posts,
+        posts: transformPosts(posts),
         pagination: {
           page,
           limit,
@@ -508,13 +589,13 @@ router.get('/widget/most-viewed', async (req: Request, res: Response) => {
     }
 
     const posts = await Post.find(query)
-      .select('title slug coverImage viewCount publishedAt category')
+      .select('title slug coverImage viewCount publishedAt createdAt category')
       .populate('category', 'name slug')
       .sort({ viewCount: -1 })
       .limit(limit)
       .lean();
 
-    res.json({ success: true, data: posts });
+    res.json({ success: true, data: transformPosts(posts) });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch most viewed' });
   }
@@ -644,7 +725,7 @@ router.get('/archive/:year/:month', async (req: Request, res: Response) => {
         status: 'published',
         publishedAt: { $gte: startDate, $lte: endDate },
       })
-        .select('title slug excerpt coverImage publishedAt viewCount category')
+        .select('title slug excerpt coverImage publishedAt createdAt viewCount category')
         .populate('category', 'name slug')
         .sort({ publishedAt: -1 })
         .skip(skip)
@@ -661,7 +742,7 @@ router.get('/archive/:year/:month', async (req: Request, res: Response) => {
       data: {
         year,
         month,
-        posts,
+        posts: transformPosts(posts),
         pagination: {
           page,
           limit,
@@ -691,22 +772,24 @@ router.get('/archive/timeline', async (req: Request, res: Response) => {
       status: 'published',
       publishedAt: { $gte: since },
     })
-      .select('title slug excerpt coverImage publishedAt viewCount category')
+      .select('title slug excerpt coverImage publishedAt createdAt viewCount category')
       .populate('category', 'name slug')
       .sort({ publishedAt: -1 })
       .lean();
 
+    const transformedPosts = transformPosts(posts);
+
     // Group by hour
-    const timeline: Record<string, typeof posts> = {};
-    posts.forEach((post) => {
-      const hourKey = new Date(post.publishedAt!).toISOString().slice(0, 13);
+    const timeline: Record<string, typeof transformedPosts> = {};
+    transformedPosts.forEach((post) => {
+      const hourKey = new Date(post.publishedAt).toISOString().slice(0, 13);
       if (!timeline[hourKey]) {
         timeline[hourKey] = [];
       }
       timeline[hourKey].push(post);
     });
 
-    res.json({ success: true, data: { timeline, total: posts.length } });
+    res.json({ success: true, data: { timeline, total: transformedPosts.length } });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to fetch timeline' });
   }

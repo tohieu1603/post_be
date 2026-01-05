@@ -12,7 +12,9 @@ import {
   generateSitemapIndex,
   splitUrlsForSitemaps,
   formatDateForSitemap,
+  generateNewsSitemapXml,
   SitemapUrl,
+  NewsArticle,
 } from '../utils/sitemap.util';
 import {
   generatePageSchemas,
@@ -23,9 +25,11 @@ import {
 const router = Router();
 const settingsService = new SettingsService();
 
-// Cache for sitemap (regenerate every hour or on content change)
+// Cache for sitemaps (regenerate every hour or on content change)
 let sitemapCache: { xml: string; timestamp: number } | null = null;
+let newsSitemapCache: { xml: string; timestamp: number } | null = null;
 const CACHE_TTL = 3600000; // 1 hour in ms
+const NEWS_CACHE_TTL = 900000; // 15 minutes for news sitemap
 
 /**
  * Helper to get site config from settings
@@ -167,20 +171,43 @@ router.get('/sitemap.xml', async (req: Request, res: Response) => {
  *             schema:
  *               type: string
  */
-router.get('/robots.txt', async (req: Request, res: Response) => {
+router.get('/robots.txt', async (_req: Request, res: Response) => {
   try {
     const robotsTxt = await settingsService.getRobotsTxt();
     res.set('Content-Type', 'text/plain');
+    res.set('Cache-Control', 'public, max-age=86400'); // 24 hours
     res.send(robotsTxt);
   } catch (error) {
-    // Return default robots.txt
-    const defaultRobots = `User-agent: *
+    // Return default robots.txt with comprehensive rules
+    const siteUrl = process.env.SITE_URL || 'http://localhost:3000';
+    const defaultRobots = `# robots.txt for ${siteUrl}
+User-agent: *
 Allow: /
+
+# Block admin and API paths
 Disallow: /api/
 Disallow: /admin/
+Disallow: /_next/
 
-Sitemap: ${process.env.SITE_URL || 'http://localhost:3000'}/sitemap.xml`;
+# Block search and filter pages (thin content)
+Disallow: /tim-kiem
+Disallow: /search
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /*?*page=
+
+# Block authentication pages
+Disallow: /auth/
+
+# Allow specific crawlers for news
+User-agent: Googlebot-News
+Allow: /
+
+# Sitemaps
+Sitemap: ${siteUrl}/sitemap.xml
+Sitemap: ${siteUrl}/news-sitemap.xml`;
     res.set('Content-Type', 'text/plain');
+    res.set('Cache-Control', 'public, max-age=86400'); // 24 hours
     res.send(defaultRobots);
   }
 });
@@ -326,10 +353,71 @@ router.get('/api/seo/schema/:type/:slug?', async (req: Request, res: Response) =
 });
 
 /**
+ * @swagger
+ * /news-sitemap.xml:
+ *   get:
+ *     summary: Get Google News sitemap XML (last 48 hours)
+ *     tags: [Public SEO]
+ *     responses:
+ *       200:
+ *         description: News sitemap XML content
+ *         content:
+ *           application/xml:
+ *             schema:
+ *               type: string
+ */
+router.get('/news-sitemap.xml', async (_req: Request, res: Response) => {
+  try {
+    // Check cache
+    if (newsSitemapCache && Date.now() - newsSitemapCache.timestamp < NEWS_CACHE_TTL) {
+      res.set('Content-Type', 'application/xml');
+      res.set('Cache-Control', 'public, max-age=900'); // 15 minutes
+      return res.send(newsSitemapCache.xml);
+    }
+
+    const config = await getSiteConfig();
+
+    // Get posts from last 48 hours
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000);
+    const postsResult = await postRepository.findAllWithFilters({
+      status: 'published',
+      limit: 1000,
+    });
+
+    // Filter and map to NewsArticle format
+    const articles: NewsArticle[] = postsResult.data
+      .filter((post) => post.publishedAt && new Date(post.publishedAt) >= cutoff)
+      .map((post) => ({
+        loc: `/${post.slug}/`,
+        title: post.title,
+        publishedAt: post.publishedAt!,
+        keywords: post.newsKeywords || post.tags?.join(', ') || undefined,
+      }));
+
+    const xml = generateNewsSitemapXml(articles, {
+      siteUrl: config.siteUrl,
+      siteName: config.siteName,
+      language: 'vi',
+    });
+
+    // Update cache
+    newsSitemapCache = { xml, timestamp: Date.now() };
+
+    res.set('Content-Type', 'application/xml');
+    res.set('Cache-Control', 'public, max-age=900'); // 15 minutes
+    res.send(xml);
+  } catch (error) {
+    console.error('News sitemap generation error:', error);
+    res.status(500).send('Error generating news sitemap');
+  }
+});
+
+/**
  * Clear sitemap cache (call this when content changes)
  */
 export function clearSitemapCache() {
   sitemapCache = null;
+  newsSitemapCache = null;
 }
 
 export default router;

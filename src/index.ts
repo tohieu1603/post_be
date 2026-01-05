@@ -30,6 +30,8 @@ import {
   corsOptions,
   requestSizeLimit,
 } from './middleware/security.middleware';
+import { redirectMiddleware } from './middleware/redirect.middleware';
+import { cacheMiddleware } from './middleware/cache.middleware';
 
 dotenv.config();
 
@@ -71,6 +73,12 @@ app.use(express.urlencoded({ extended: true, limit: requestSizeLimit.urlencoded 
 
 // 5. Attach user info from headers/token
 app.use(attachUser());
+
+// 6. Cache headers middleware
+app.use(cacheMiddleware());
+
+// 7. Redirect middleware (SEO redirects from database)
+app.use(redirectMiddleware);
 
 // Static files for uploads
 const uploadDir = process.env.UPLOAD_DIR || 'uploads';

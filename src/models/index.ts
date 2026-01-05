@@ -1,5 +1,6 @@
 // Core Models
 export * from './user.model';
+export * from './author.model';
 export * from './category.model';
 export * from './tag.model';
 export * from './post.model';
