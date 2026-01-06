@@ -9,7 +9,7 @@ config();
 import { User } from '../models/user.model';
 import { Category } from '../models/category.model';
 import { Tag } from '../models/tag.model';
-import { Post, ContentStructure, ContentSection } from '../models/post.model';
+import { Post, ContentStructure } from '../models/post.model';
 import { Settings } from '../models/settings.model';
 import { Media } from '../models/media.model';
 import { Keyword } from '../models/keyword.model';
@@ -233,71 +233,14 @@ const settingsData = [
 
 // Helper function to generate content structure
 function generateContentStructure(_title: string, content: string): ContentStructure {
-  const sections: ContentSection[] = [
-    {
-      id: 'intro',
-      type: 'paragraph',
-      order: 0,
-      content: content.substring(0, 500),
-    },
-    {
-      id: 'h2-overview',
-      type: 'heading',
-      order: 1,
-      level: 2,
-      text: 'Overview',
-      anchor: 'overview',
-    },
-    {
-      id: 'overview-content',
-      type: 'paragraph',
-      order: 2,
-      content: 'This section provides an overview of the topic discussed in this article.',
-    },
-    {
-      id: 'h2-details',
-      type: 'heading',
-      order: 3,
-      level: 2,
-      text: 'Key Details',
-      anchor: 'key-details',
-    },
-    {
-      id: 'details-list',
-      type: 'list',
-      order: 4,
-      list: {
-        type: 'unordered',
-        items: ['Important point 1', 'Important point 2', 'Important point 3'],
-      },
-    },
-    {
-      id: 'h2-conclusion',
-      type: 'heading',
-      order: 5,
-      level: 2,
-      text: 'Conclusion',
-      anchor: 'conclusion',
-    },
-    {
-      id: 'conclusion-content',
-      type: 'paragraph',
-      order: 6,
-      content: 'In conclusion, this article has covered the essential aspects of the topic.',
-    },
-  ];
-
   return {
-    summary: content.substring(0, 200),
     toc: [
       { id: 'h2-overview', text: 'Overview', level: 2, anchor: 'overview' },
       { id: 'h2-details', text: 'Key Details', level: 2, anchor: 'key-details' },
       { id: 'h2-conclusion', text: 'Conclusion', level: 2, anchor: 'conclusion' },
     ],
-    sections,
     wordCount: content.split(/\s+/).length,
-    estimatedReadTime: Math.ceil(content.split(/\s+/).length / 200),
-    lastStructureUpdate: new Date().toISOString(),
+    readingTime: Math.ceil(content.split(/\s+/).length / 200),
   };
 }
 

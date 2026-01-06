@@ -25,6 +25,9 @@ export type Permission =
   // Tag permissions
   | 'tag:view'
   | 'tag:manage'
+  // Author permissions (E-E-A-T)
+  | 'author:view'
+  | 'author:manage'
   // Media permissions
   | 'media:view'
   | 'media:upload'
@@ -66,35 +69,42 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'post:view', 'post:create_draft', 'post:edit_own', 'post:edit_any', 'post:publish', 'post:delete',
     'category:view', 'category:manage',
     'tag:view', 'tag:manage',
+    'author:view', 'author:manage',
     'media:view', 'media:upload', 'media:edit_own', 'media:edit_any', 'media:delete_own', 'media:delete_any',
     'user:view', 'user:manage',
     'seo:view', 'seo:manage',
     'settings:view', 'settings:manage',
+    'analytics:view',
   ],
   admin: [
     // All except system settings
     'post:view', 'post:create_draft', 'post:edit_own', 'post:edit_any', 'post:publish', 'post:delete',
     'category:view', 'category:manage',
     'tag:view', 'tag:manage',
+    'author:view', 'author:manage',
     'media:view', 'media:upload', 'media:edit_own', 'media:edit_any', 'media:delete_own', 'media:delete_any',
     'user:view', 'user:manage',
     'seo:view', 'seo:manage',
     'settings:view', // Can view but not manage system settings
+    'analytics:view',
   ],
   editor: [
     // Post management (including others' posts), no delete, no category/user/seo management
     'post:view', 'post:create_draft', 'post:edit_own', 'post:edit_any', 'post:publish',
     'category:view',
     'tag:view', 'tag:manage',
+    'author:view', // Can view authors but not manage
     'media:view', 'media:upload', 'media:edit_own', 'media:edit_any', 'media:delete_own',
     'user:view',
     'seo:view',
+    'analytics:view',
   ],
   writer: [
     // Can create and edit own posts only, cannot publish
     'post:view', 'post:create_draft', 'post:edit_own',
     'category:view',
     'tag:view',
+    'author:view', // Can view authors
     'media:view', 'media:upload', 'media:edit_own', 'media:delete_own',
     'user:view',
   ],
@@ -103,6 +113,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'post:view',
     'category:view',
     'tag:view',
+    'author:view',
     'media:view',
   ],
 };

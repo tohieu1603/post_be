@@ -393,15 +393,15 @@ export class PostController {
         return notFoundResponse(res, 'Post');
       }
 
-      // Get or create structure
-      let structure = post.contentStructure || contentStructureService.createEmptyStructure();
+      // Get or create structure (legacy API - uses LegacyContentStructure)
+      let structure = (post.contentStructure as any) || contentStructureService.createEmptyStructure();
 
       // Add section
       structure = contentStructureService.addSection(structure, section, afterSectionId);
 
-      // Save
+      // Save (cast to any for legacy compatibility)
       const updated = await postService.update(id, {
-        contentStructure: structure,
+        contentStructure: structure as any,
       });
 
       return res.json({
@@ -431,16 +431,16 @@ export class PostController {
         return errorResponse(res, 'Post has no structure', 400);
       }
 
-      // Update section
+      // Update section (legacy API)
       const structure = contentStructureService.updateSection(
-        post.contentStructure,
+        post.contentStructure as any,
         sectionId,
         updates
       );
 
       // Save
       const updated = await postService.update(id, {
-        contentStructure: structure,
+        contentStructure: structure as any,
       });
 
       return res.json({
@@ -469,15 +469,15 @@ export class PostController {
         return errorResponse(res, 'Post has no structure', 400);
       }
 
-      // Remove section
+      // Remove section (legacy API)
       const structure = contentStructureService.removeSection(
-        post.contentStructure,
+        post.contentStructure as any,
         sectionId
       );
 
       // Save
       const updated = await postService.update(id, {
-        contentStructure: structure,
+        contentStructure: structure as any,
       });
 
       return res.json({
@@ -507,15 +507,15 @@ export class PostController {
         return errorResponse(res, 'Post has no structure', 400);
       }
 
-      // Reorder
+      // Reorder (legacy API)
       const structure = contentStructureService.reorderSections(
-        post.contentStructure,
+        post.contentStructure as any,
         sectionIds
       );
 
       // Save
       const updated = await postService.update(id, {
-        contentStructure: structure,
+        contentStructure: structure as any,
       });
 
       return res.json({
@@ -540,18 +540,18 @@ export class PostController {
         return notFoundResponse(res, 'Post');
       }
 
-      // Parse HTML to structure
+      // Parse HTML to structure (legacy API)
       const structure = contentStructureService.parseHtmlToStructure(post.content || '');
 
       // Save
       const updated = await postService.update(id, {
-        contentStructure: structure,
+        contentStructure: structure as any,
       });
 
       return res.json({
         success: true,
         data: updated?.contentStructure,
-        message: `Synced ${structure.sections.length} sections, ${structure.toc.length} TOC items`,
+        message: `Synced ${structure.sections?.length || 0} sections, ${structure.toc.length} TOC items`,
       });
     } catch (error) {
       return errorResponse(res, 'Failed to sync structure', 500);

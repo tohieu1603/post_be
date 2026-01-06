@@ -5,7 +5,6 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import {
-  ContentStructure,
   ContentSection,
   TocItem,
   ImageBlock,
@@ -14,6 +13,16 @@ import {
   TableBlock,
   ListBlock,
 } from '../models/post.model';
+
+// Local interface for this service (legacy HTML parsing)
+interface LegacyContentStructure {
+  summary?: string;
+  toc: TocItem[];
+  sections: ContentSection[];
+  wordCount?: number;
+  estimatedReadTime?: number;
+  lastStructureUpdate?: string;
+}
 
 // Simple HTML tag regex patterns
 const HEADING_REGEX = /<h([1-6])(?:\s+id="([^"]*)")?[^>]*>([\s\S]*?)<\/h\1>/gi;
@@ -124,9 +133,9 @@ function extractTable(tableHtml: string): TableBlock {
 }
 
 /**
- * Parse HTML content to ContentStructure
+ * Parse HTML content to LegacyContentStructure
  */
-export function parseHtmlToStructure(html: string): ContentStructure {
+export function parseHtmlToStructure(html: string): LegacyContentStructure {
   const sections: ContentSection[] = [];
   const toc: TocItem[] = [];
   let order = 0;
@@ -344,9 +353,9 @@ export function parseHtmlToStructure(html: string): ContentStructure {
 }
 
 /**
- * Convert ContentStructure back to HTML
+ * Convert LegacyContentStructure back to HTML
  */
-export function structureToHtml(structure: ContentStructure): string {
+export function structureToHtml(structure: LegacyContentStructure): string {
   if (!structure || !structure.sections) return '';
 
   const sortedSections = [...structure.sections].sort((a, b) => a.order - b.order);
@@ -442,10 +451,10 @@ export function generateTocHtml(toc: TocItem[]): string {
  * Add or update a section in the structure
  */
 export function addSection(
-  structure: ContentStructure,
+  structure: LegacyContentStructure,
   section: Omit<ContentSection, 'id' | 'order'>,
   afterSectionId?: string
-): ContentStructure {
+): LegacyContentStructure {
   const newSection: ContentSection = {
     ...section,
     id: uuidv4(),
@@ -482,7 +491,7 @@ export function addSection(
 /**
  * Remove a section from the structure
  */
-export function removeSection(structure: ContentStructure, sectionId: string): ContentStructure {
+export function removeSection(structure: LegacyContentStructure, sectionId: string): LegacyContentStructure {
   const sections = structure.sections.filter(s => s.id !== sectionId);
   sections.forEach((s, i) => { s.order = i; });
 
@@ -500,10 +509,10 @@ export function removeSection(structure: ContentStructure, sectionId: string): C
  * Update a section in the structure
  */
 export function updateSection(
-  structure: ContentStructure,
+  structure: LegacyContentStructure,
   sectionId: string,
   updates: Partial<ContentSection>
-): ContentStructure {
+): LegacyContentStructure {
   const sections = structure.sections.map(s =>
     s.id === sectionId ? { ...s, ...updates } : s
   );
@@ -521,7 +530,7 @@ export function updateSection(
 /**
  * Reorder sections
  */
-export function reorderSections(structure: ContentStructure, sectionIds: string[]): ContentStructure {
+export function reorderSections(structure: LegacyContentStructure, sectionIds: string[]): LegacyContentStructure {
   const sectionMap = new Map(structure.sections.map(s => [s.id, s]));
   const sections = sectionIds
     .map(id => sectionMap.get(id))
@@ -556,7 +565,7 @@ function buildTocFromSections(sections: ContentSection[]): TocItem[] {
 /**
  * Create empty structure
  */
-export function createEmptyStructure(): ContentStructure {
+export function createEmptyStructure(): LegacyContentStructure {
   return {
     toc: [],
     sections: [],

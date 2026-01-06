@@ -1,5 +1,11 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
-import { parseContentMetadata } from '../utils/markdown.util';
+import {
+  ContentBlock,
+  markdownToBlocks,
+  extractTocFromBlocks,
+  countWordsInBlocks,
+  estimateReadingTimeFromBlocks,
+} from '../utils/content-blocks.util';
 
 // === Content Structure Types ===
 export interface TocItem {
@@ -13,8 +19,19 @@ export interface ImageBlock {
   url: string;
   alt: string;
   caption?: string;
+  // SEO & Link
+  link?: string;          // Backlink - wrap image in <a>
+  title?: string;         // Title attribute for tooltip
+  // Responsive
   width?: number;
   height?: number;
+  srcset?: string;        // srcset for responsive images
+  sizes?: string;         // sizes attribute
+  // Performance
+  loading?: 'lazy' | 'eager';
+  // Source info
+  source?: string;        // Credit/source của ảnh
+  sourceUrl?: string;     // Link tới nguồn gốc
 }
 
 export interface ReviewBlock {
@@ -110,6 +127,8 @@ export interface IPost extends Document {
   customFields: Record<string, any> | null;
   // Content Structure - Auto-generated from content
   contentStructure: ContentStructure | null;
+  // Content Blocks - Block-based JSON content (Notion-style)
+  contentBlocks: ContentBlock[] | null;
   // FAQ - Separate field for easy access
   faq: FaqItem[] | null;
   // Timestamps
@@ -174,6 +193,8 @@ const postSchema = new Schema<IPost>(
       },
       default: null,
     },
+    // Content Blocks - Block-based JSON content (Notion-style)
+    contentBlocks: { type: Schema.Types.Mixed, default: null },
     // FAQ - Array of question/answer pairs
     faq: [{
       question: { type: String, required: true },
@@ -203,22 +224,41 @@ postSchema.virtual('authorInfo', {
   justOne: true,
 });
 
-// Pre-save middleware: auto-set publishedAt and generate contentStructure
+// Pre-save middleware: auto-set publishedAt and generate contentStructure/contentBlocks
 postSchema.pre('save', function (next) {
   // If status is 'published' and publishedAt is not set, set it to now
   if (this.status === 'published' && !this.publishedAt) {
     this.publishedAt = new Date();
   }
 
-  // Auto-generate contentStructure from content
-  if (this.content) {
-    const metadata = parseContentMetadata(this.content);
-    this.contentStructure = {
-      toc: metadata.toc,
-      wordCount: metadata.wordCount,
-      readingTime: metadata.readingTime,
-    };
-    this.readingTime = metadata.readingTime;
+  // Use contentBlocks if provided, otherwise generate from content
+  let blocks = this.contentBlocks;
+
+  // Only generate from content if contentBlocks is not provided or empty
+  if (!blocks || (Array.isArray(blocks) && blocks.length === 0)) {
+    if (this.content) {
+      blocks = markdownToBlocks(this.content);
+      this.contentBlocks = blocks;
+    }
+  }
+
+  // Generate contentStructure from blocks (either provided or generated)
+  if (blocks && Array.isArray(blocks) && blocks.length > 0) {
+    const toc = extractTocFromBlocks(blocks);
+    const wordCount = countWordsInBlocks(blocks);
+    const readingTime = estimateReadingTimeFromBlocks(blocks);
+
+    this.contentStructure = { toc, wordCount, readingTime };
+    this.readingTime = readingTime;
+  } else if (this.content) {
+    // Fallback: generate from content if blocks still empty
+    const fallbackBlocks = markdownToBlocks(this.content);
+    const toc = extractTocFromBlocks(fallbackBlocks);
+    const wordCount = countWordsInBlocks(fallbackBlocks);
+    const readingTime = estimateReadingTimeFromBlocks(fallbackBlocks);
+
+    this.contentStructure = { toc, wordCount, readingTime };
+    this.readingTime = readingTime;
   }
 
   next();
@@ -237,21 +277,50 @@ postSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function (next) 
       update.publishedAt = new Date();
     }
 
-    // Auto-generate contentStructure when content is updated
+    // Get contentBlocks from update if provided
+    const providedBlocks = update.$set?.contentBlocks || update.contentBlocks;
     const content = update.$set?.content || update.content;
-    if (content) {
-      const metadata = parseContentMetadata(content);
-      const contentStructure = {
-        toc: metadata.toc,
-        wordCount: metadata.wordCount,
-        readingTime: metadata.readingTime,
-      };
+
+    // Use provided contentBlocks, or generate from content if not provided
+    let blocks = providedBlocks;
+    if (!blocks || (Array.isArray(blocks) && blocks.length === 0)) {
+      if (content) {
+        blocks = markdownToBlocks(content);
+      }
+    }
+
+    // Generate contentStructure from blocks
+    if (blocks && Array.isArray(blocks) && blocks.length > 0) {
+      const toc = extractTocFromBlocks(blocks);
+      const wordCount = countWordsInBlocks(blocks);
+      const readingTime = estimateReadingTimeFromBlocks(blocks);
+      const contentStructure = { toc, wordCount, readingTime };
+
       if (update.$set) {
+        update.$set.contentBlocks = blocks;
         update.$set.contentStructure = contentStructure;
-        update.$set.readingTime = metadata.readingTime;
+        update.$set.readingTime = readingTime;
       } else {
+        update.contentBlocks = blocks;
         update.contentStructure = contentStructure;
-        update.readingTime = metadata.readingTime;
+        update.readingTime = readingTime;
+      }
+    } else if (content) {
+      // Fallback: generate from content if blocks still empty
+      const fallbackBlocks = markdownToBlocks(content);
+      const toc = extractTocFromBlocks(fallbackBlocks);
+      const wordCount = countWordsInBlocks(fallbackBlocks);
+      const readingTime = estimateReadingTimeFromBlocks(fallbackBlocks);
+      const contentStructure = { toc, wordCount, readingTime };
+
+      if (update.$set) {
+        update.$set.contentBlocks = fallbackBlocks;
+        update.$set.contentStructure = contentStructure;
+        update.$set.readingTime = readingTime;
+      } else {
+        update.contentBlocks = fallbackBlocks;
+        update.contentStructure = contentStructure;
+        update.readingTime = readingTime;
       }
     }
   }

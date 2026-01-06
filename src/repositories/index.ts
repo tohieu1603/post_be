@@ -7,3 +7,4 @@ export * from './activity-log.repository';
 export * from './settings.repository';
 export * from './redirect.repository';
 export * from './page-content.repository';
+export * from './author.repository';
