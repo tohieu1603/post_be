@@ -101,7 +101,10 @@ export class PostRepository {
    * Find post by slug (for public page)
    */
   async findBySlug(slug: string): Promise<IPost | null> {
-    const doc = await Post.findOne({ slug }).populate('category').lean({ virtuals: true });
+    const doc = await Post.findOne({ slug })
+      .populate('category')
+      .populate('authorInfo', 'name slug jobTitle bio avatarUrl sameAs')
+      .lean({ virtuals: true });
     return addId(doc) as unknown as IPost | null;
   }
 
