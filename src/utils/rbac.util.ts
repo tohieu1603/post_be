@@ -28,6 +28,12 @@ export type Permission =
   // Author permissions (E-E-A-T)
   | 'author:view'
   | 'author:manage'
+  // Banner permissions
+  | 'banner:view'
+  | 'banner:create'
+  | 'banner:edit'
+  | 'banner:delete'
+  | 'banner:sync'
   // Media permissions
   | 'media:view'
   | 'media:upload'
@@ -70,6 +76,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'category:view', 'category:manage',
     'tag:view', 'tag:manage',
     'author:view', 'author:manage',
+    'banner:view', 'banner:create', 'banner:edit', 'banner:delete', 'banner:sync',
     'media:view', 'media:upload', 'media:edit_own', 'media:edit_any', 'media:delete_own', 'media:delete_any',
     'user:view', 'user:manage',
     'seo:view', 'seo:manage',
@@ -82,6 +89,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'category:view', 'category:manage',
     'tag:view', 'tag:manage',
     'author:view', 'author:manage',
+    'banner:view', 'banner:create', 'banner:edit', 'banner:delete', 'banner:sync',
     'media:view', 'media:upload', 'media:edit_own', 'media:edit_any', 'media:delete_own', 'media:delete_any',
     'user:view', 'user:manage',
     'seo:view', 'seo:manage',
@@ -94,6 +102,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'category:view',
     'tag:view', 'tag:manage',
     'author:view', // Can view authors but not manage
+    'banner:view', // Can view banners but not manage
     'media:view', 'media:upload', 'media:edit_own', 'media:edit_any', 'media:delete_own',
     'user:view',
     'seo:view',
@@ -105,6 +114,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'category:view',
     'tag:view',
     'author:view', // Can view authors
+    'banner:view', // Can view banners
     'media:view', 'media:upload', 'media:edit_own', 'media:delete_own',
     'user:view',
   ],
@@ -114,6 +124,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'category:view',
     'tag:view',
     'author:view',
+    'banner:view',
     'media:view',
   ],
 };

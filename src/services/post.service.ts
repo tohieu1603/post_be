@@ -6,6 +6,7 @@ import { PaginatedResponse } from '../types';
 import { googleSeoApiService } from './google-seo-api.service';
 import { autoSeoService } from './auto-seo.service';
 import { clearSitemapCache } from '../routes/public-seo-routes';
+import { bannerService } from './banner.service';
 
 /**
  * Post Service - Business logic layer
@@ -47,9 +48,14 @@ export class PostService {
 
   /**
    * Increment view count
+   * Also triggers banner sync check for trending
    */
   async incrementViewCount(id: string): Promise<void> {
     await postRepository.incrementViewCount(id);
+    // Check if this affects trending banners (async, non-blocking)
+    bannerService.onPostViewCountChanged(id).catch(err => {
+      console.error('[Banner Sync] Failed to check trending:', err);
+    });
   }
 
   /**

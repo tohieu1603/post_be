@@ -42,6 +42,9 @@ export interface CreatePostDto {
   readingTime?: number;
   template?: string;
   customFields?: Record<string, any>;
+
+  // Trending & Social
+  isTrending?: boolean;
 }
 
 export interface UpdatePostDto {
@@ -81,6 +84,10 @@ export interface UpdatePostDto {
   template?: string | null;
   customFields?: Record<string, any> | null;
 
+  // Trending & Social
+  isTrending?: boolean;
+  trendingRank?: number | null;
+
   // Content Structure
   contentStructure?: ContentStructure | null;
 }
@@ -92,9 +99,10 @@ export interface PostFilterDto {
   author?: string;
   tags?: string[];
   isFeatured?: boolean;
+  isTrending?: boolean;
   page?: number;
   limit?: number;
-  sortBy?: 'title' | 'createdAt' | 'updatedAt' | 'viewCount' | 'publishedAt';
+  sortBy?: 'title' | 'createdAt' | 'updatedAt' | 'viewCount' | 'publishedAt' | 'shareCount' | 'trendingRank';
   sortOrder?: 'ASC' | 'DESC';
 }
 
@@ -126,6 +134,13 @@ export interface PostResponseDto {
   readingTime: number | null;
   template: string | null;
   customFields: Record<string, any> | null;
+  // Trending & Social
+  isTrending: boolean;
+  trendingRank: number | null;
+  trendingAt: Date | null;
+  shareCount: number;
+  likeCount: number;
+  commentCount: number;
   createdAt: Date;
   updatedAt: Date;
   category?: {

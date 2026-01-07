@@ -8,3 +8,4 @@ export * from './settings.repository';
 export * from './redirect.repository';
 export * from './page-content.repository';
 export * from './author.repository';
+export * from './banner.repository';

@@ -125,6 +125,13 @@ export interface IPost extends Document {
   readingTime: number | null;
   template: string | null;
   customFields: Record<string, any> | null;
+  // Trending & Social
+  isTrending: boolean;            // Đánh dấu bài trending (thủ công hoặc tự động)
+  trendingRank: number | null;    // Thứ hạng trending (1-10, null nếu không trending)
+  trendingAt: Date | null;        // Thời điểm vào trending
+  shareCount: number;             // Tổng số lượt share
+  likeCount: number;              // Tổng số lượt like
+  commentCount: number;           // Tổng số comment
   // Content Structure - Auto-generated from content
   contentStructure: ContentStructure | null;
   // Content Blocks - Block-based JSON content (Notion-style)
@@ -179,6 +186,13 @@ const postSchema = new Schema<IPost>(
     readingTime: { type: Number, default: null },
     template: { type: String, default: null, maxlength: 100 },
     customFields: { type: Schema.Types.Mixed, default: null },
+    // Trending & Social
+    isTrending: { type: Boolean, default: false },
+    trendingRank: { type: Number, default: null, min: 1, max: 10 },
+    trendingAt: { type: Date, default: null },
+    shareCount: { type: Number, default: 0 },
+    likeCount: { type: Number, default: 0 },
+    commentCount: { type: Number, default: 0 },
     // Content Structure - Auto-generated from content
     contentStructure: {
       type: {
@@ -335,6 +349,9 @@ postSchema.index({ createdAt: -1 });
 postSchema.index({ isFeatured: 1 });
 postSchema.index({ authorId: 1 });
 postSchema.index({ isEvergreen: 1 });
+postSchema.index({ isTrending: 1, trendingRank: 1 });
+postSchema.index({ viewCount: -1 }); // For trending queries
+postSchema.index({ shareCount: -1 });
 postSchema.index({ title: 'text', content: 'text' });
 
 export const Post = mongoose.model<IPost>('Post', postSchema);

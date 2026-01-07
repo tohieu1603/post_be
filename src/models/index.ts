@@ -10,6 +10,9 @@ export * from './redirect.model';
 export * from './settings.model';
 export * from './page-content.model';
 
+// Banner Model
+export * from './banner.model';
+
 // SEO Models
 export * from './seo-score.model';
 export * from './keyword.model';
