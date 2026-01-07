@@ -5,6 +5,7 @@ import { Tag } from '../models/tag.model';
 import { AnalyticsEvent, DailyStats } from '../models/analytics.model';
 import { Types } from 'mongoose';
 import crypto from 'crypto';
+import { escapeRegex, sanitizeSearchQuery } from '../utils/security.util';
 
 const router = Router();
 
@@ -479,13 +480,22 @@ router.get('/search', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Search query must be at least 2 characters' });
     }
 
-    // Build query
+    // Sanitize search query to prevent NoSQL injection and ReDoS
+    const sanitizedQuery = sanitizeSearchQuery(q, 100);
+    if (!sanitizedQuery) {
+      return res.status(400).json({ success: false, error: 'Invalid search query' });
+    }
+
+    // Escape regex special characters for safe MongoDB $regex
+    const safeRegex = escapeRegex(sanitizedQuery);
+
+    // Build query with escaped regex
     const query: any = {
       status: 'published',
       $or: [
-        { title: { $regex: q, $options: 'i' } },
-        { excerpt: { $regex: q, $options: 'i' } },
-        { content: { $regex: q, $options: 'i' } },
+        { title: { $regex: safeRegex, $options: 'i' } },
+        { excerpt: { $regex: safeRegex, $options: 'i' } },
+        { content: { $regex: safeRegex, $options: 'i' } },
       ],
     };
 
@@ -551,9 +561,16 @@ router.get('/search/suggest', async (req: Request, res: Response) => {
       return res.json({ success: true, data: [] });
     }
 
+    // Sanitize and escape search query for safe regex
+    const sanitizedQuery = sanitizeSearchQuery(q, 100);
+    if (!sanitizedQuery) {
+      return res.json({ success: true, data: [] });
+    }
+    const safeRegex = escapeRegex(sanitizedQuery);
+
     const posts = await Post.find({
       status: 'published',
-      title: { $regex: q, $options: 'i' },
+      title: { $regex: safeRegex, $options: 'i' },
     })
       .select('title slug')
       .limit(limit)

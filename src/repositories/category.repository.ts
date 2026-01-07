@@ -2,6 +2,7 @@ import { Category, ICategory } from '../models/category.model';
 import { CategoryFilterDto } from '../dtos';
 import { Types, FilterQuery, SortOrder } from 'mongoose';
 import { Post } from '../models/post.model';
+import { escapeRegex } from '../utils/security.util';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LeanResult<T> = T extends Array<infer U> ? U[] : T;
@@ -19,9 +20,10 @@ export class CategoryRepository {
     const query: FilterQuery<ICategory> = {};
 
     if (search) {
+      const safeSearch = escapeRegex(search);
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { slug: { $regex: search, $options: 'i' } },
+        { name: { $regex: safeSearch, $options: 'i' } },
+        { slug: { $regex: safeSearch, $options: 'i' } },
       ];
     }
 

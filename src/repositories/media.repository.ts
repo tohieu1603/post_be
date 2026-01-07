@@ -1,6 +1,7 @@
 import { Media, IMedia, MediaUsage } from '../models/media.model';
 import { MediaQueryParams } from '../dtos/media.dto';
 import { Types, FilterQuery, SortOrder } from 'mongoose';
+import { escapeRegex } from '../utils/security.util';
 
 /**
  * Media Repository - MongoDB/Mongoose implementation
@@ -23,9 +24,10 @@ export class MediaRepository {
     const query: FilterQuery<IMedia> = {};
 
     if (search) {
+      const safeSearch = escapeRegex(search);
       query.$or = [
-        { originalName: { $regex: search, $options: 'i' } },
-        { altText: { $regex: search, $options: 'i' } },
+        { originalName: { $regex: safeSearch, $options: 'i' } },
+        { altText: { $regex: safeSearch, $options: 'i' } },
       ];
     }
 

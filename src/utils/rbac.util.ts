@@ -51,7 +51,18 @@ export type Permission =
   | 'settings:view'
   | 'settings:manage'
   // Analytics permissions
-  | 'analytics:view';
+  | 'analytics:view'
+  // PageContent permissions
+  | 'content:view'
+  | 'content:create'
+  | 'content:edit'
+  | 'content:delete'
+  | 'content:import'
+  // Dictionary permissions
+  | 'dictionary:view'
+  | 'dictionary:create'
+  | 'dictionary:edit'
+  | 'dictionary:delete';
 
 /**
  * Role-Permission mapping based on requirements
@@ -82,6 +93,8 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'seo:view', 'seo:manage',
     'settings:view', 'settings:manage',
     'analytics:view',
+    'content:view', 'content:create', 'content:edit', 'content:delete', 'content:import',
+    'dictionary:view', 'dictionary:create', 'dictionary:edit', 'dictionary:delete',
   ],
   admin: [
     // All except system settings
@@ -95,6 +108,8 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'seo:view', 'seo:manage',
     'settings:view', // Can view but not manage system settings
     'analytics:view',
+    'content:view', 'content:create', 'content:edit', 'content:delete', 'content:import',
+    'dictionary:view', 'dictionary:create', 'dictionary:edit', 'dictionary:delete',
   ],
   editor: [
     // Post management (including others' posts), no delete, no category/user/seo management
@@ -107,6 +122,8 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'user:view',
     'seo:view',
     'analytics:view',
+    'content:view', 'content:edit', // Can view and edit content but not create/delete/import
+    'dictionary:view', 'dictionary:create', 'dictionary:edit', // Can view, create and edit dictionary but not delete
   ],
   writer: [
     // Can create and edit own posts only, cannot publish
@@ -117,6 +134,8 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'banner:view', // Can view banners
     'media:view', 'media:upload', 'media:edit_own', 'media:delete_own',
     'user:view',
+    'content:view', // Can only view content
+    'dictionary:view', // Can view dictionary terms
   ],
   viewer: [
     // Read-only access
@@ -126,6 +145,8 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'author:view',
     'banner:view',
     'media:view',
+    'content:view',
+    'dictionary:view',
   ],
 };
 

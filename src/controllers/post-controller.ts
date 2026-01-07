@@ -6,6 +6,10 @@ import {
   notFoundResponse,
 } from '../utils';
 import { contentStructureService } from '../services/content-structure.service';
+import { sanitizeHtmlContent } from '../utils/security.util';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import fs from 'fs';
 
 /**
  * Post Controller
@@ -304,7 +308,10 @@ export class PostController {
         return errorResponse(res, 'HTML content is required', 400);
       }
 
-      const structure = contentStructureService.parseHtmlToStructure(html);
+      // Sanitize HTML to prevent XSS before parsing
+      const sanitizedHtml = sanitizeHtmlContent(html, 'rich');
+
+      const structure = contentStructureService.parseHtmlToStructure(sanitizedHtml);
       return res.json({
         success: true,
         data: structure,
@@ -555,6 +562,115 @@ export class PostController {
       });
     } catch (error) {
       return errorResponse(res, 'Failed to sync structure', 500);
+    }
+  };
+
+  // ========== Cover Image Upload ==========
+
+  /**
+   * POST /api/posts/:id/cover
+   * Upload cover image for a post
+   */
+  uploadCover = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { id } = req.params;
+      const file = req.file;
+
+      if (!file) {
+        return errorResponse(res, 'No file uploaded', 400);
+      }
+
+      // Check post exists
+      const post = await postService.getById(id);
+      if (!post) {
+        return notFoundResponse(res, 'Post');
+      }
+
+      const uploadDir = process.env.UPLOAD_DIR || 'uploads';
+      const coverDir = path.join(uploadDir, 'covers');
+      const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 4000}`;
+
+      // Create covers directory if not exists
+      if (!fs.existsSync(coverDir)) {
+        fs.mkdirSync(coverDir, { recursive: true });
+      }
+
+      // Delete old cover image if exists
+      if (post.coverImage) {
+        try {
+          const oldFilename = post.coverImage.split('/').pop();
+          if (oldFilename) {
+            const oldPath = path.join(coverDir, oldFilename);
+            if (fs.existsSync(oldPath)) {
+              fs.unlinkSync(oldPath);
+            }
+          }
+        } catch {
+          // Ignore errors when deleting old file
+        }
+      }
+
+      // Generate unique filename
+      const ext = path.extname(file.originalname);
+      const filename = `${uuidv4()}${ext}`;
+      const filePath = path.join(coverDir, filename);
+
+      // Save file
+      fs.writeFileSync(filePath, file.buffer);
+
+      // Update post with new cover URL
+      const coverUrl = `${baseUrl}/uploads/covers/${filename}`;
+      const updated = await postService.update(id, { coverImage: coverUrl });
+
+      return res.json({
+        success: true,
+        coverImage: coverUrl,
+        post: updated,
+      });
+    } catch (error) {
+      return errorResponse(res, 'Failed to upload cover image', 500);
+    }
+  };
+
+  /**
+   * DELETE /api/posts/:id/cover
+   * Remove cover image from a post
+   */
+  removeCover = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { id } = req.params;
+
+      const post = await postService.getById(id);
+      if (!post) {
+        return notFoundResponse(res, 'Post');
+      }
+
+      // Delete file if exists
+      if (post.coverImage) {
+        try {
+          const uploadDir = process.env.UPLOAD_DIR || 'uploads';
+          const filename = post.coverImage.split('/').pop();
+          if (filename) {
+            const filePath = path.join(uploadDir, 'covers', filename);
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+            }
+          }
+        } catch {
+          // Ignore errors when deleting file
+        }
+      }
+
+      // Update post to remove cover
+      const updated = await postService.update(id, { coverImage: '' });
+
+      return res.json({
+        success: true,
+        message: 'Cover image removed',
+        post: updated,
+      });
+    } catch (error) {
+      return errorResponse(res, 'Failed to remove cover image', 500);
     }
   };
 }

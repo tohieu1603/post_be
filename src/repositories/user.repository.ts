@@ -1,5 +1,6 @@
 import { User, IUser } from '../models/user.model';
 import { Types, FilterQuery } from 'mongoose';
+import { escapeRegex } from '../utils/security.util';
 
 /**
  * User Repository - MongoDB/Mongoose implementation
@@ -26,10 +27,11 @@ export class UserRepository {
    * Search users
    */
   async search(query: string): Promise<IUser[]> {
+    const safeQuery = escapeRegex(query);
     return User.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { email: { $regex: query, $options: 'i' } },
+        { name: { $regex: safeQuery, $options: 'i' } },
+        { email: { $regex: safeQuery, $options: 'i' } },
       ],
     })
       .select('-passwordHash')

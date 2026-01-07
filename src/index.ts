@@ -20,6 +20,7 @@ import publicApiRoutes from './routes/public-api-routes';
 import analyticsRoutes from './routes/analytics-routes';
 import authorRoutes from './routes/author-routes';
 import bannerRoutes from './routes/banner-routes';
+import dictionaryRoutes from './routes/dictionary-routes';
 import { attachUser } from './middleware/rbac.middleware';
 import { authService } from './services/auth.service';
 import { seoSchedulerService } from './services/seo-scheduler.service';
@@ -103,6 +104,7 @@ app.use('/api/page-content', pageContentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/authors', authorRoutes);
 app.use('/api/banners', bannerRoutes);
+app.use('/api/dictionary', dictionaryRoutes);
 app.use('/api/public', publicApiRateLimiter, publicApiRoutes); // Public API limit
 
 // Health check

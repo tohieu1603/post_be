@@ -3,6 +3,7 @@ import { postController } from '../controllers';
 import { requireAuth } from '../middleware/auth.middleware';
 import { requirePermission } from '../middleware/rbac.middleware';
 import { validate, postValidation, isValidObjectId, searchValidation } from '../middleware/validation.middleware';
+import { imageUpload, handleUploadError, validateUploadedFile, ALLOWED_IMAGE_TYPES } from '../middleware/upload.middleware';
 
 const router = Router();
 
@@ -567,5 +568,94 @@ router.delete('/:id/structure/section/:sectionId', postController.removeSection)
  *         description: Sections đã sắp xếp lại
  */
 router.put('/:id/structure/reorder', postController.reorderSections);
+
+// ========== Cover Image Upload Routes ==========
+
+/**
+ * @swagger
+ * /posts/{id}/cover:
+ *   post:
+ *     summary: Upload ảnh bìa cho bài viết
+ *     tags: [Posts - Cover]
+ *     description: Upload ảnh bìa (cover image) cho bài viết. Hỗ trợ JPEG, PNG, GIF, WebP.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           pattern: "^[a-fA-F0-9]{24}$"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - cover
+ *             properties:
+ *               cover:
+ *                 type: string
+ *                 format: binary
+ *                 description: File ảnh bìa (max 10MB)
+ *     responses:
+ *       200:
+ *         description: Upload thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 coverImage:
+ *                   type: string
+ *                   description: URL của ảnh bìa
+ *       400:
+ *         description: Không có file hoặc file không hợp lệ
+ *       404:
+ *         description: Không tìm thấy bài viết
+ */
+router.post(
+  '/:id/cover',
+  requireAuth,
+  requirePermission('post:edit_own'),
+  validate([isValidObjectId('id')]),
+  imageUpload.single('cover'),
+  handleUploadError,
+  validateUploadedFile(ALLOWED_IMAGE_TYPES),
+  postController.uploadCover
+);
+
+/**
+ * @swagger
+ * /posts/{id}/cover:
+ *   delete:
+ *     summary: Xóa ảnh bìa của bài viết
+ *     tags: [Posts - Cover]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           pattern: "^[a-fA-F0-9]{24}$"
+ *     responses:
+ *       200:
+ *         description: Xóa thành công
+ *       404:
+ *         description: Không tìm thấy bài viết
+ */
+router.delete(
+  '/:id/cover',
+  requireAuth,
+  requirePermission('post:edit_own'),
+  validate([isValidObjectId('id')]),
+  postController.removeCover
+);
 
 export default router;

@@ -1,6 +1,7 @@
 import { Post, IPost, PostStatus } from '../models/post.model';
 import { PostFilterDto } from '../dtos';
 import { Types, FilterQuery, SortOrder } from 'mongoose';
+import { escapeRegex } from '../utils/security.util';
 
 /**
  * Helper to add id from _id for lean() results
@@ -36,12 +37,13 @@ export class PostRepository {
 
     const query: FilterQuery<IPost> = {};
 
-    // Search filter
+    // Search filter - escape regex to prevent NoSQL injection
     if (search) {
+      const safeSearch = escapeRegex(search);
       query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { slug: { $regex: search, $options: 'i' } },
-        { excerpt: { $regex: search, $options: 'i' } },
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { slug: { $regex: safeSearch, $options: 'i' } },
+        { excerpt: { $regex: safeSearch, $options: 'i' } },
       ];
     }
 

@@ -1,6 +1,7 @@
 import { Tag, ITag } from '../models/tag.model';
 import { Post } from '../models/post.model';
 import { Types, FilterQuery } from 'mongoose';
+import { escapeRegex } from '../utils/security.util';
 
 /**
  * Tag Repository - MongoDB/Mongoose implementation
@@ -59,10 +60,11 @@ export class TagRepository {
    * Search tags by query
    */
   async search(query: string): Promise<ITag[]> {
+    const safeQuery = escapeRegex(query);
     return Tag.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { slug: { $regex: query, $options: 'i' } },
+        { name: { $regex: safeQuery, $options: 'i' } },
+        { slug: { $regex: safeQuery, $options: 'i' } },
       ],
     })
       .sort({ name: 1 })
