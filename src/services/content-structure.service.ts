@@ -295,8 +295,8 @@ export function parseHtmlToStructure(html: string): LegacyContentStructure {
       anchor,
     });
 
-    // Add to TOC (only H2)
-    if (level === 2) {
+    // Add to TOC (H1 and H2)
+    if (level <= 2) {
       toc.push({
         id,
         text,
@@ -549,11 +549,11 @@ export function reorderSections(structure: LegacyContentStructure, sectionIds: s
 }
 
 /**
- * Build TOC from sections (only H2)
+ * Build TOC from sections (H1 and H2)
  */
 function buildTocFromSections(sections: ContentSection[]): TocItem[] {
   return sections
-    .filter(s => s.type === 'heading' && s.level && s.level === 2)
+    .filter(s => s.type === 'heading' && s.level && s.level <= 2)
     .map(s => ({
       id: s.id,
       text: s.text || '',

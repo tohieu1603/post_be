@@ -360,11 +360,11 @@ export function blocksToMarkdown(blocks: ContentBlock[]): string {
 }
 
 /**
- * Extract TOC from content blocks (only H2)
+ * Extract TOC from content blocks (H1 and H2)
  */
 export function extractTocFromBlocks(blocks: ContentBlock[]): { id: string; text: string; level: number; anchor: string }[] {
   return blocks
-    .filter((block): block is HeadingBlock => block.type === 'heading' && block.level === 2)
+    .filter((block): block is HeadingBlock => block.type === 'heading' && block.level <= 2)
     .map(block => ({
       id: `h${block.level}-${block.anchor}`,
       text: block.text,
