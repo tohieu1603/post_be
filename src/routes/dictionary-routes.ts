@@ -360,6 +360,15 @@ router.get('/suggestions', dictionaryController.getSuggestions);
 
 /**
  * @swagger
+ * /dictionary/letter/{letter}:
+ *   get:
+ *     summary: Get terms by first letter (A, B, C...)
+ *     tags: [Dictionary]
+ */
+router.get('/letter/:letter', dictionaryController.getByLetter);
+
+/**
+ * @swagger
  * /dictionary/category/{categoryId}:
  *   get:
  *     summary: Get terms by category

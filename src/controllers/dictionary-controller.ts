@@ -140,6 +140,32 @@ export class DictionaryController {
   };
 
   /**
+   * GET /api/dictionary/letter/:letter
+   * Get terms by first letter
+   */
+  getByLetter = async (req: Request, res: Response): Promise<Response> => {
+    try {
+      const { letter } = req.params;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 100;
+
+      const filters: DictionaryFilterDto = {
+        letter: letter.toUpperCase(),
+        isActive: true,
+        page,
+        limit,
+        sortBy: 'term',
+        sortOrder: 'ASC',
+      };
+
+      const result = await dictionaryService.getAll(filters);
+      return res.json(result);
+    } catch (error) {
+      return errorResponse(res, 'Failed to fetch terms by letter', 500);
+    }
+  };
+
+  /**
    * GET /api/dictionary/category/:categoryId
    * Get terms by category
    */
