@@ -10,13 +10,9 @@ export interface IDictionaryTerm extends Document {
   slug: string;           // URL-friendly slug
   definition: string;     // Short definition
   description?: string;   // Detailed explanation (supports HTML)
-  pronunciation?: string; // IPA or phonetic pronunciation
-  partOfSpeech?: string;  // noun, verb, adjective, etc.
-  synonyms?: string[];    // Related terms with similar meaning
-  antonyms?: string[];    // Opposite terms
-  relatedTerms?: Types.ObjectId[]; // Links to other dictionary entries
+  synonym?: string;       // Single synonym/alias for the term
+  relatedTerms?: string[]; // Related term names as strings
   examples?: string[];    // Usage examples
-  etymology?: string;     // Word origin/history
   categoryId?: Types.ObjectId; // Link to category for organization
   tags?: string[];        // Additional tags for filtering
   source?: string;        // Source/reference for the definition
@@ -66,37 +62,19 @@ const DictionaryTermSchema = new Schema<IDictionaryTerm>(
       trim: true,
       maxlength: 50000,
     },
-    pronunciation: {
+    synonym: {
       type: String,
       trim: true,
       maxlength: 255,
     },
-    partOfSpeech: {
-      type: String,
-      trim: true,
-      enum: ['noun', 'verb', 'adjective', 'adverb', 'phrase', 'abbreviation', 'acronym', 'other'],
-    },
-    synonyms: [{
-      type: String,
-      trim: true,
-    }],
-    antonyms: [{
-      type: String,
-      trim: true,
-    }],
     relatedTerms: [{
-      type: Schema.Types.ObjectId,
-      ref: 'DictionaryTerm',
+      type: String,
+      trim: true,
     }],
     examples: [{
       type: String,
       trim: true,
     }],
-    etymology: {
-      type: String,
-      trim: true,
-      maxlength: 2000,
-    },
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
@@ -179,13 +157,6 @@ DictionaryTermSchema.virtual('category', {
   localField: 'categoryId',
   foreignField: '_id',
   justOne: true,
-});
-
-// Virtual for related terms populated
-DictionaryTermSchema.virtual('related', {
-  ref: 'DictionaryTerm',
-  localField: 'relatedTerms',
-  foreignField: '_id',
 });
 
 // Pre-save hook to generate slug
