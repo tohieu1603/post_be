@@ -125,6 +125,31 @@ const router = Router();
  *           type: string
  *         description:
  *           type: string
+ *     ArticleItem:
+ *       type: object
+ *       required:
+ *         - id
+ *         - title
+ *         - url
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: ID bài viết
+ *         title:
+ *           type: string
+ *           description: Tiêu đề bài viết
+ *         url:
+ *           type: string
+ *           description: Link bài viết
+ *         imageUrl:
+ *           type: string
+ *           description: Ảnh đại diện (optional)
+ *         description:
+ *           type: string
+ *           description: Mô tả ngắn
+ *         publishedDate:
+ *           type: string
+ *           description: Ngày đăng
  *     Author:
  *       type: object
  *       properties:
@@ -176,6 +201,11 @@ const router = Router();
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/PublicationItem'
+ *         articles:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/ArticleItem'
+ *           description: Danh sách bài viết (link, tiêu đề, ảnh)
  *         website:
  *           type: string
  *         twitter:
@@ -249,6 +279,11 @@ const router = Router();
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/CertificationItem'
+ *         articles:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/ArticleItem'
+ *           description: Danh sách bài viết (link, tiêu đề, ảnh optional)
  *         isActive:
  *           type: boolean
  *           default: true

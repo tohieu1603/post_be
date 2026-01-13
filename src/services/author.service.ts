@@ -96,6 +96,7 @@ export class AuthorService {
       achievements: dto.achievements || [],
       skills: dto.skills || [],
       publications: dto.publications || [],
+      articles: dto.articles || [],
       sameAs: dto.sameAs || [],
     });
   }

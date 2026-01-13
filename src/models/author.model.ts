@@ -63,6 +63,15 @@ export interface PublicationItem {
   description?: string;      // Mô tả ngắn
 }
 
+export interface ArticleItem {
+  id: string;
+  title: string;             // Tiêu đề bài viết
+  url: string;               // Link bài viết
+  imageUrl?: string;         // Ảnh đại diện (optional)
+  description?: string;      // Mô tả ngắn (optional)
+  publishedDate?: string;    // Ngày đăng (optional)
+}
+
 export interface IAuthor extends Document {
   _id: Types.ObjectId;
   // Basic info
@@ -86,6 +95,7 @@ export interface IAuthor extends Document {
   achievements: AchievementItem[];       // Thành tựu/giải thưởng
   skills: SkillItem[];                   // Kỹ năng
   publications: PublicationItem[];       // Bài báo/nghiên cứu
+  articles: ArticleItem[];               // Bài viết (link, tiêu đề, ảnh)
 
   // Legacy fields (kept for compatibility)
   credentials: string | null;            // Bằng cấp, chứng chỉ (text)
@@ -179,6 +189,14 @@ const authorSchema = new Schema<IAuthor>(
       date: { type: String, default: null },
       url: { type: String, default: null },
       description: { type: String, default: null },
+    }],
+    articles: [{
+      id: { type: String, required: true },
+      title: { type: String, required: true },
+      url: { type: String, required: true },
+      imageUrl: { type: String, default: null },
+      description: { type: String, default: null },
+      publishedDate: { type: String, default: null },
     }],
 
     // Legacy fields

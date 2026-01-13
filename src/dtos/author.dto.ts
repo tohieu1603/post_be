@@ -10,6 +10,7 @@ import {
   AchievementItem,
   SkillItem,
   PublicationItem,
+  ArticleItem,
 } from '../models/author.model';
 
 // === Create Author DTO ===
@@ -34,6 +35,7 @@ export interface CreateAuthorDto {
   achievements?: AchievementItem[];
   skills?: SkillItem[];
   publications?: PublicationItem[];
+  articles?: ArticleItem[];
 
   // Legacy
   credentials?: string;
@@ -83,6 +85,7 @@ export interface UpdateAuthorDto {
   achievements?: AchievementItem[];
   skills?: SkillItem[];
   publications?: PublicationItem[];
+  articles?: ArticleItem[];
 
   // Legacy
   credentials?: string;
@@ -145,6 +148,7 @@ export interface AuthorResponseDto {
   achievements: AchievementItem[];
   skills: SkillItem[];
   publications: PublicationItem[];
+  articles: ArticleItem[];
 
   // Legacy
   credentials: string | null;

@@ -297,7 +297,7 @@ const dictionaryValidation = {
 
 /**
  * @swagger
- * /dictionary:
+ * /api/dictionary:
  *   get:
  *     summary: Get all dictionary terms with pagination
  *     tags: [Dictionary]
@@ -360,10 +360,28 @@ router.get('/suggestions', dictionaryController.getSuggestions);
 
 /**
  * @swagger
- * /dictionary/letter/{letter}:
+ * /api/dictionary/letter/{letter}:
  *   get:
  *     summary: Get terms by first letter (A, B, C...)
  *     tags: [Dictionary]
+ *     parameters:
+ *       - in: path
+ *         name: letter
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: First letter to filter (A, B, C...)
+ *         example: A
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 100
  */
 router.get('/letter/:letter', dictionaryController.getByLetter);
 
@@ -413,7 +431,7 @@ router.get('/:id', requireAuth, requirePermission('dictionary:view'), isValidObj
 
 /**
  * @swagger
- * /dictionary:
+ * /api/dictionary:
  *   post:
  *     summary: Create new dictionary term
  *     tags: [Dictionary]

@@ -33,7 +33,7 @@ API quản lý bài viết với đầy đủ tính năng:
     },
     servers: [
       {
-        url: `http://${HOST}:${PORT}/api`,
+        url: `http://${HOST}:${PORT}`,
         description: 'Development server',
       },
     ],

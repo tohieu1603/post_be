@@ -251,6 +251,11 @@ export const corsOptions = {
       return callback(null, true);
     }
 
+    // Allow same-origin requests (Swagger UI)
+    if (origin.includes('localhost:5445') || origin.includes('127.0.0.1:5445')) {
+      return callback(null, true);
+    }
+
     if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
       callback(null, true);
     } else {
