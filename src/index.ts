@@ -22,6 +22,7 @@ import authorRoutes from './routes/author-routes';
 import bannerRoutes from './routes/banner-routes';
 import dictionaryRoutes from './routes/dictionary-routes';
 import schemaRoutes from './routes/schema-routes';
+import mcpRoutes from './routes/mcp-routes';
 import { attachUser } from './middleware/rbac.middleware';
 import { authService } from './services/auth.service';
 import { seoSchedulerService } from './services/seo-scheduler.service';
@@ -109,6 +110,7 @@ app.use('/api/dictionary', dictionaryRoutes);
 app.use('/api/schema', schemaRoutes); // Schema introspection
 app.use('/api', schemaRoutes); // Query execute route
 app.use('/api/public', publicApiRateLimiter, publicApiRoutes); // Public API limit
+app.use('/api/mcp', mcpRoutes); // MCP Protocol endpoint for AI agents
 
 // Health check
 app.get('/api/health', (_, res) => {
