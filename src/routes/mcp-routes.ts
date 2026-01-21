@@ -6,6 +6,7 @@
  */
 
 import { Router, Request, Response } from 'express';
+import { randomUUID } from 'crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 
@@ -46,6 +47,32 @@ registerCategoryTools(mcpServer, categoryService);
 registerTagTools(mcpServer, tagService);
 registerAuthorTools(mcpServer, authorService);
 
+// Session management - store transports by session ID
+interface SessionData {
+  transport: StreamableHTTPServerTransport;
+  createdAt: number;
+  lastUsed: number;
+}
+const sessions = new Map<string, SessionData>();
+
+// Session timeout (30 minutes)
+const SESSION_TIMEOUT = 30 * 60 * 1000;
+
+// Cleanup expired sessions every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  let cleaned = 0;
+  for (const [sessionId, session] of sessions.entries()) {
+    if (now - session.lastUsed > SESSION_TIMEOUT) {
+      sessions.delete(sessionId);
+      cleaned++;
+    }
+  }
+  if (cleaned > 0) {
+    log('Sessions cleaned', { cleaned, remaining: sessions.size });
+  }
+}, 5 * 60 * 1000);
+
 // Tool list for documentation
 const TOOL_LIST = [
   // Post (3)
@@ -84,28 +111,58 @@ router.get('/', (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   const clientIp = req.ip || req.socket.remoteAddress;
   const startTime = Date.now();
-  const sessionId = `session-${Date.now()}`;
+
+  // Get existing session ID from header
+  const existingSessionId = req.headers['mcp-session-id'] as string;
 
   log('REQUEST received', {
     ip: clientIp,
-    sessionId,
+    existingSessionId: existingSessionId || 'none',
+    activeSessions: sessions.size,
   });
 
   try {
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: () => sessionId,
-    });
+    let transport: StreamableHTTPServerTransport;
+    let sessionId: string;
+    let isNewSession = false;
 
-    await mcpServer.connect(transport);
+    if (existingSessionId && sessions.has(existingSessionId)) {
+      // Reuse existing session
+      const session = sessions.get(existingSessionId)!;
+      transport = session.transport;
+      sessionId = existingSessionId;
+      session.lastUsed = Date.now();
+      log('SESSION reused', { sessionId });
+    } else {
+      // Create new session
+      sessionId = randomUUID();
+      isNewSession = true;
 
+      transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: () => sessionId,
+      });
+
+      // Store session
+      sessions.set(sessionId, {
+        transport,
+        createdAt: Date.now(),
+        lastUsed: Date.now(),
+      });
+
+      // Connect mcpServer with new transport
+      await mcpServer.connect(transport);
+
+      log('SESSION created', { sessionId, totalSessions: sessions.size });
+    }
+
+    // Handle the request
     await transport.handleRequest(req, res);
 
     const duration = Date.now() - startTime;
-    log('REQUEST completed', { sessionId, duration: `${duration}ms` });
+    log('REQUEST completed', { sessionId, duration: `${duration}ms`, isNewSession });
   } catch (error) {
     const duration = Date.now() - startTime;
     log('REQUEST failed', {
-      sessionId,
       duration: `${duration}ms`,
       error: error instanceof Error ? error.message : 'Unknown error',
     });
@@ -117,6 +174,21 @@ router.post('/', async (req: Request, res: Response) => {
         message: error instanceof Error ? error.message : 'Internal error',
       },
     });
+  }
+});
+
+/**
+ * DELETE /api/mcp - Close session
+ */
+router.delete('/', (req: Request, res: Response) => {
+  const sessionId = req.headers['mcp-session-id'] as string;
+
+  if (sessionId && sessions.has(sessionId)) {
+    sessions.delete(sessionId);
+    log('SESSION closed', { sessionId });
+    res.status(200).json({ success: true, message: 'Session closed' });
+  } else {
+    res.status(404).json({ success: false, message: 'Session not found' });
   }
 });
 
