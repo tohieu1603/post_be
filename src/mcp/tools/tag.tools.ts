@@ -28,7 +28,7 @@ export function registerTagTools(server: McpServer, tagService: TagService): voi
       name: z.string().min(1).describe('Tên tag (bắt buộc)'),
       slug: z.string().optional().describe('Slug tùy chỉnh (tự động tạo nếu không có)'),
       description: z.string().optional().describe('Mô tả tag'),
-      color: z.string().optional().describe('Mã màu HEX (ví dụ: #FF5733)'),
+      color: z.string().optional().describe('Màu sắc (hex code, ví dụ: #FF5733)'),
       isActive: z.boolean().default(true).describe('Trạng thái active'),
     },
     async (params) => {

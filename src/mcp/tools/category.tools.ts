@@ -2,8 +2,8 @@
  * Category Tools for MCP Server
  *
  * Tools:
- * - get_categories: Lấy danh sách danh mục với filters
- * - get_category_tree: Lấy danh mục dạng cây phân cấp
+ * - get_categories: Lấy danh sách danh mục
+ * - get_category_tree: Lấy danh mục dạng cây
  * - get_category_dropdown: Lấy danh mục cho dropdown
  * - get_category_by_id: Lấy danh mục theo ID
  * - get_category_by_slug: Lấy danh mục theo slug
@@ -39,20 +39,19 @@ export function registerCategoryTools(server: McpServer, categoryService: Catego
     'get_categories',
     'Lấy danh sách tất cả danh mục với filters',
     {
-      search: z.string().optional().describe('Từ khóa tìm kiếm theo tên'),
+      search: z.string().optional().describe('Từ khóa tìm kiếm'),
       isActive: z.boolean().optional().describe('Lọc theo trạng thái active'),
-      page: z.number().default(1).describe('Số trang'),
-      limit: z.number().default(50).describe('Số lượng mỗi trang'),
+      parentId: z.string().optional().describe('Lọc theo danh mục cha'),
     },
     async (params) => {
       try {
-        const result = await categoryService.getAll({
+        const categories = await categoryService.getAll({
           search: params.search,
           isActive: params.isActive,
-          page: params.page,
-          limit: params.limit,
+          parentId: params.parentId,
         });
-        return successResponse(result, 'Đã lấy danh sách danh mục thành công');
+
+        return successResponse(categories, 'Đã lấy danh sách danh mục');
       } catch (error) {
         return errorResponse(error);
       }
@@ -67,7 +66,7 @@ export function registerCategoryTools(server: McpServer, categoryService: Catego
     async () => {
       try {
         const tree = await categoryService.getTree();
-        return successResponse(tree, 'Đã lấy cây danh mục thành công');
+        return successResponse(tree, 'Đã lấy cây danh mục');
       } catch (error) {
         return errorResponse(error);
       }
@@ -81,8 +80,8 @@ export function registerCategoryTools(server: McpServer, categoryService: Catego
     {},
     async () => {
       try {
-        const categories = await categoryService.getForDropdown();
-        return successResponse(categories, 'Đã lấy danh sách danh mục cho dropdown');
+        const dropdown = await categoryService.getForDropdown();
+        return successResponse(dropdown, 'Đã lấy danh mục cho dropdown');
       } catch (error) {
         return errorResponse(error);
       }
@@ -99,9 +98,11 @@ export function registerCategoryTools(server: McpServer, categoryService: Catego
     async (params) => {
       try {
         const category = await categoryService.getById(params.id);
+
         if (!category) {
           return errorResponse(new Error('Không tìm thấy danh mục'));
         }
+
         return successResponse(category, 'Đã lấy thông tin danh mục');
       } catch (error) {
         return errorResponse(error);
@@ -119,9 +120,11 @@ export function registerCategoryTools(server: McpServer, categoryService: Catego
     async (params) => {
       try {
         const category = await categoryService.getBySlug(params.slug);
+
         if (!category) {
           return errorResponse(new Error('Không tìm thấy danh mục'));
         }
+
         return successResponse(category, 'Đã lấy thông tin danh mục');
       } catch (error) {
         return errorResponse(error);
@@ -137,10 +140,8 @@ export function registerCategoryTools(server: McpServer, categoryService: Catego
       name: z.string().min(1).describe('Tên danh mục (bắt buộc)'),
       slug: z.string().optional().describe('Slug tùy chỉnh (tự động tạo nếu không có)'),
       description: z.string().optional().describe('Mô tả danh mục'),
-      parentId: z.string().nullable().optional().describe('ID danh mục cha (null nếu là root)'),
+      parentId: z.string().optional().describe('ID danh mục cha (nếu là danh mục con)'),
       isActive: z.boolean().default(true).describe('Trạng thái active'),
-      metaTitle: z.string().optional().describe('Meta title cho SEO'),
-      metaDescription: z.string().optional().describe('Meta description cho SEO'),
     },
     async (params) => {
       try {
@@ -150,8 +151,6 @@ export function registerCategoryTools(server: McpServer, categoryService: Catego
           description: params.description,
           parentId: params.parentId,
           isActive: params.isActive,
-          metaTitle: params.metaTitle,
-          metaDescription: params.metaDescription,
         }) as { name: string };
 
         return successResponse(category, `Đã tạo danh mục "${category.name}" thành công`);
@@ -170,10 +169,8 @@ export function registerCategoryTools(server: McpServer, categoryService: Catego
       name: z.string().optional().describe('Tên mới'),
       slug: z.string().optional().describe('Slug mới'),
       description: z.string().optional().describe('Mô tả mới'),
-      parentId: z.string().nullable().optional().describe('ID danh mục cha mới'),
+      parentId: z.string().nullable().optional().describe('ID danh mục cha mới (null để xóa)'),
       isActive: z.boolean().optional().describe('Trạng thái active mới'),
-      metaTitle: z.string().optional().describe('Meta title mới'),
-      metaDescription: z.string().optional().describe('Meta description mới'),
     },
     async (params) => {
       try {
@@ -206,7 +203,7 @@ export function registerCategoryTools(server: McpServer, categoryService: Catego
           return errorResponse(new Error(result.message || 'Không thể xóa danh mục'));
         }
 
-        return successResponse(result, 'Đã xóa danh mục thành công');
+        return successResponse({ deleted: true }, 'Đã xóa danh mục thành công');
       } catch (error) {
         return errorResponse(error);
       }
@@ -222,14 +219,14 @@ export function registerCategoryTools(server: McpServer, categoryService: Catego
     },
     async (params) => {
       try {
-        const category = await categoryService.toggleActive(params.id) as { isActive: boolean } | null;
+        const category = await categoryService.toggleActive(params.id) as { name: string; isActive: boolean } | null;
 
         if (!category) {
           return errorResponse(new Error('Không tìm thấy danh mục'));
         }
 
         const status = category.isActive ? 'active' : 'inactive';
-        return successResponse(category, `Đã chuyển danh mục sang trạng thái ${status}`);
+        return successResponse(category, `Đã chuyển danh mục "${category.name}" sang trạng thái ${status}`);
       } catch (error) {
         return errorResponse(error);
       }
