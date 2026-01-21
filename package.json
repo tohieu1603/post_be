@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
+    "build": "node --max-old-space-size=4096 node_modules/typescript/bin/tsc",
+    "build:fast": "esbuild src/index.ts --bundle --platform=node --outdir=dist --packages=external --format=cjs",
     "start": "node dist/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -44,6 +45,7 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
+    "esbuild": "^0.24.0",
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
