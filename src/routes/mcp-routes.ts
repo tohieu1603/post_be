@@ -84,16 +84,11 @@ router.get('/', (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   const clientIp = req.ip || req.socket.remoteAddress;
   const startTime = Date.now();
-
-  // Log incoming request
-  const requestMethod = req.body?.method || 'unknown';
   const sessionId = `session-${Date.now()}`;
 
   log('REQUEST received', {
     ip: clientIp,
-    method: requestMethod,
     sessionId,
-    params: requestMethod === 'tools/call' ? req.body?.params?.name : undefined,
   });
 
   try {
@@ -102,10 +97,11 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     await mcpServer.connect(transport);
+
     await transport.handleRequest(req, res);
 
     const duration = Date.now() - startTime;
-    log('REQUEST completed', { sessionId, duration: `${duration}ms`, method: requestMethod });
+    log('REQUEST completed', { sessionId, duration: `${duration}ms` });
   } catch (error) {
     const duration = Date.now() - startTime;
     log('REQUEST failed', {

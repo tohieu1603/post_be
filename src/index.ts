@@ -69,9 +69,19 @@ app.use(securityMiddleware);
 // 2. CORS with security options
 app.use(cors(corsOptions));
 
-// 3. Body parsers with size limits
-app.use(express.json({ limit: requestSizeLimit.json }));
-app.use(express.urlencoded({ extended: true, limit: requestSizeLimit.urlencoded }));
+// 3. Body parsers with size limits (skip for MCP - it handles its own parsing)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/mcp')) {
+    return next();
+  }
+  express.json({ limit: requestSizeLimit.json })(req, res, next);
+});
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/mcp')) {
+    return next();
+  }
+  express.urlencoded({ extended: true, limit: requestSizeLimit.urlencoded })(req, res, next);
+});
 
 // 4. General rate limiting for all routes (disabled for development)
 // app.use('/api/', generalRateLimiter);
