@@ -66,12 +66,12 @@ export function registerPostTools(server: McpServer, postService: PostService): 
     {
       title: z.string().min(1).describe('Tiêu đề bài viết (bắt buộc)'),
       slug: z.string().optional().describe('Slug tùy chỉnh (tự động tạo nếu không có)'),
-      content: z.string().optional().describe('Nội dung bài viết (HTML)'),
+      content: z.string().min(1).describe('Nội dung bài viết HTML (bắt buộc)'),
       excerpt: z.string().optional().describe('Mô tả ngắn'),
-      categoryId: z.string().optional().describe('ID danh mục'),
+      categoryId: z.string().min(1).describe('ID danh mục (bắt buộc)'),
       tags: z.array(z.string()).optional().describe('Danh sách ID tags'),
-      authorId: z.string().optional().describe('ID tác giả'),
-      featuredImage: z.string().optional().describe('URL ảnh đại diện'),
+      author: z.string().optional().describe('ID tác giả'),
+      coverImage: z.string().optional().describe('URL ảnh đại diện'),
       status: z
         .enum(['draft', 'published', 'archived'])
         .default('draft')
@@ -86,8 +86,8 @@ export function registerPostTools(server: McpServer, postService: PostService): 
           excerpt: params.excerpt,
           categoryId: params.categoryId,
           tags: params.tags,
-          authorId: params.authorId,
-          featuredImage: params.featuredImage,
+          author: params.author,
+          coverImage: params.coverImage,
           status: params.status,
         }) as { title: string };
 
