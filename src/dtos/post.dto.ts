@@ -2,9 +2,9 @@
  * Post DTOs - Data Transfer Objects
  */
 
-import { ContentStructure, PostStatus } from '../models/post.model';
+import { ContentStructure, PostStatus, FaqItem } from '../models/post.model';
 
-export { PostStatus };
+export { PostStatus, FaqItem };
 
 export interface CreatePostDto {
   // Basic
@@ -48,6 +48,9 @@ export interface CreatePostDto {
 
   // Trending & Social
   isTrending?: boolean;
+
+  // FAQ
+  faq?: FaqItem[];
 }
 
 export interface UpdatePostDto {
@@ -96,6 +99,9 @@ export interface UpdatePostDto {
 
   // Content Structure
   contentStructure?: ContentStructure | null;
+
+  // FAQ
+  faq?: FaqItem[] | null;
 }
 
 export interface PostFilterDto {

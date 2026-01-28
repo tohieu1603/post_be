@@ -66,8 +66,9 @@ export function registerPostTools(server: McpServer, postService: PostService): 
   // Tool 2: create_post
   server.tool(
     'create_post',
-    'Tạo bài viết mới với title, content, category, tags',
+    'Tạo bài viết mới với title, content, category, tags, SEO, FAQ',
     {
+      // Basic
       title: z.string().min(1).describe('Tiêu đề bài viết (bắt buộc)'),
       slug: z.string().optional().describe('Slug tùy chỉnh (tự động tạo nếu không có)'),
       content: z.string().min(1).describe('Nội dung bài viết HTML (bắt buộc)'),
@@ -80,6 +81,36 @@ export function registerPostTools(server: McpServer, postService: PostService): 
         .enum(['draft', 'published', 'archived'])
         .default('draft')
         .describe('Trạng thái bài viết'),
+
+      // SEO - Basic
+      metaTitle: z.string().optional().describe('SEO meta title'),
+      metaDescription: z.string().optional().describe('SEO meta description'),
+      metaKeywords: z.string().optional().describe('SEO meta keywords'),
+      canonicalUrl: z.string().optional().describe('Canonical URL'),
+
+      // SEO - Open Graph
+      ogTitle: z.string().optional().describe('Open Graph title'),
+      ogDescription: z.string().optional().describe('Open Graph description'),
+      ogImage: z.string().optional().describe('Open Graph image URL'),
+
+      // SEO - Twitter Card
+      twitterTitle: z.string().optional().describe('Twitter card title'),
+      twitterDescription: z.string().optional().describe('Twitter card description'),
+      twitterImage: z.string().optional().describe('Twitter card image URL'),
+
+      // Advanced
+      isFeatured: z.boolean().optional().describe('Đánh dấu bài viết nổi bật'),
+      allowComments: z.boolean().optional().describe('Cho phép comment'),
+      readingTime: z.number().optional().describe('Thời gian đọc (phút)'),
+      template: z.string().optional().describe('Template tùy chỉnh'),
+      customFields: z.record(z.any()).optional().describe('Custom fields'),
+      isTrending: z.boolean().optional().describe('Đánh dấu trending'),
+
+      // FAQ
+      faq: z.array(z.object({
+        question: z.string().min(1).describe('Câu hỏi'),
+        answer: z.string().min(1).describe('Câu trả lời'),
+      })).optional().describe('Danh sách FAQ (cho SEO rich results)'),
     },
     async (params) => {
       try {
@@ -93,6 +124,26 @@ export function registerPostTools(server: McpServer, postService: PostService): 
           authorId: params.authorId,
           coverImage: params.coverImage,
           status: params.status,
+          // SEO
+          metaTitle: params.metaTitle,
+          metaDescription: params.metaDescription,
+          metaKeywords: params.metaKeywords,
+          canonicalUrl: params.canonicalUrl,
+          ogTitle: params.ogTitle,
+          ogDescription: params.ogDescription,
+          ogImage: params.ogImage,
+          twitterTitle: params.twitterTitle,
+          twitterDescription: params.twitterDescription,
+          twitterImage: params.twitterImage,
+          // Advanced
+          isFeatured: params.isFeatured,
+          allowComments: params.allowComments,
+          readingTime: params.readingTime,
+          template: params.template,
+          customFields: params.customFields,
+          isTrending: params.isTrending,
+          // FAQ
+          faq: params.faq,
         }) as { title: string };
 
         return successResponse(post, `Đã tạo bài viết "${post.title}" thành công`);
