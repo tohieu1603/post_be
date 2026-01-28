@@ -2,6 +2,7 @@
  * Tag Tools for MCP Server
  *
  * Tools:
+ * - get_tags: Lấy danh sách tags
  * - create_tag: Tạo tag mới
  * - toggle_tag_active: Bật/tắt trạng thái tag
  */
@@ -12,6 +13,8 @@ import { successResponse, errorResponse } from '../utils/response';
 
 // Service type (will be injected)
 interface TagService {
+  findAll(): Promise<unknown>;
+  search(query: string): Promise<unknown>;
   create(dto: Record<string, unknown>): Promise<unknown>;
   toggleActive(id: string): Promise<unknown>;
 }
@@ -20,7 +23,29 @@ interface TagService {
  * Register all Tag tools to the MCP server
  */
 export function registerTagTools(server: McpServer, tagService: TagService): void {
-  // Tool 1: create_tag
+  // Tool 1: get_tags
+  server.tool(
+    'get_tags',
+    'Lấy danh sách tất cả tags (kèm số lượng bài viết)',
+    {
+      search: z.string().optional().describe('Tìm kiếm theo tên tag'),
+    },
+    async (params) => {
+      try {
+        let result;
+        if (params.search) {
+          result = await tagService.search(params.search);
+        } else {
+          result = await tagService.findAll();
+        }
+        return successResponse(result, 'Đã lấy danh sách tags');
+      } catch (error) {
+        return errorResponse(error);
+      }
+    }
+  );
+
+  // Tool 2: create_tag
   server.tool(
     'create_tag',
     'Tạo tag mới với tên, màu sắc, mô tả',

@@ -39,7 +39,7 @@ const mcpServer = new McpServer({
   version: '1.0.0',
 });
 
-log('MCP Server initialized', { tools: 18 });
+log('MCP Server initialized', { tools: 20 });
 
 // Register all tools (modular)
 registerPostTools(mcpServer, postService);
@@ -81,10 +81,10 @@ const TOOL_LIST = [
   'get_categories', 'get_category_tree', 'get_category_dropdown',
   'get_category_by_id', 'get_category_by_slug', 'create_category',
   'update_category', 'delete_category', 'toggle_category_active',
-  // Tag (2)
-  'create_tag', 'toggle_tag_active',
-  // Author (4)
-  'get_author_by_id', 'create_author', 'update_author', 'toggle_author_featured',
+  // Tag (3)
+  'get_tags', 'create_tag', 'toggle_tag_active',
+  // Author (5)
+  'get_authors', 'get_author_by_id', 'create_author', 'update_author', 'toggle_author_featured',
 ];
 
 /**

@@ -21,9 +21,19 @@ export class PostController {
    */
   getAll = async (req: Request, res: Response): Promise<Response> => {
     try {
+      // Parse tagsRelation from query (can be comma-separated or array)
+      let tagsRelation: string[] | undefined;
+      if (req.query.tagsRelation) {
+        tagsRelation = Array.isArray(req.query.tagsRelation)
+          ? req.query.tagsRelation as string[]
+          : (req.query.tagsRelation as string).split(',');
+      }
+
       const filters: PostFilterDto = {
         search: req.query.search as string,
         categoryId: req.query.categoryId as string,
+        authorId: req.query.authorId as string,
+        tagsRelation,
         status: req.query.status as PostStatus,
         page: parseInt(req.query.page as string) || 1,
         limit: parseInt(req.query.limit as string) || 10,

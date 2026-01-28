@@ -28,6 +28,8 @@ export class PostRepository {
     const {
       search,
       categoryId,
+      authorId,
+      tagsRelation,
       status,
       page = 1,
       limit = 10,
@@ -52,6 +54,21 @@ export class PostRepository {
       query.categoryId = new Types.ObjectId(categoryId);
     }
 
+    // Author filter (ObjectId)
+    if (authorId && Types.ObjectId.isValid(authorId)) {
+      query.authorId = new Types.ObjectId(authorId);
+    }
+
+    // Tags filter (ObjectId array)
+    if (tagsRelation && tagsRelation.length > 0) {
+      const validTagIds = tagsRelation
+        .filter(id => Types.ObjectId.isValid(id))
+        .map(id => new Types.ObjectId(id));
+      if (validTagIds.length > 0) {
+        query.tagsRelation = { $in: validTagIds };
+      }
+    }
+
     // Status filter
     if (status) {
       query.status = status;
@@ -70,6 +87,8 @@ export class PostRepository {
 
     const rawData = await Post.find(query)
       .populate('category')
+      .populate('authorInfo', 'name slug jobTitle avatarUrl')
+      .populate('tagsRelation', 'name slug color')
       .sort(sort)
       .skip(skip)
       .limit(limit)
@@ -93,7 +112,11 @@ export class PostRepository {
    */
   async findByIdWithRelations(id: string): Promise<IPost | null> {
     if (!Types.ObjectId.isValid(id)) return null;
-    const doc = await Post.findById(id).populate('category').lean({ virtuals: true });
+    const doc = await Post.findById(id)
+      .populate('category')
+      .populate('authorInfo', 'name slug jobTitle bio avatarUrl sameAs')
+      .populate('tagsRelation', 'name slug color')
+      .lean({ virtuals: true });
     return addId(doc) as unknown as IPost | null;
   }
 
@@ -104,6 +127,7 @@ export class PostRepository {
     const doc = await Post.findOne({ slug })
       .populate('category')
       .populate('authorInfo', 'name slug jobTitle bio avatarUrl sameAs')
+      .populate('tagsRelation', 'name slug color')
       .lean({ virtuals: true });
     return addId(doc) as unknown as IPost | null;
   }
@@ -139,6 +163,8 @@ export class PostRepository {
     }
     const doc = await Post.findByIdAndUpdate(id, updateData, { new: true })
       .populate('category')
+      .populate('authorInfo', 'name slug jobTitle avatarUrl')
+      .populate('tagsRelation', 'name slug color')
       .lean({ virtuals: true });
     return addId(doc) as unknown as IPost | null;
   }
@@ -260,6 +286,8 @@ export class PostRepository {
     if (!Types.ObjectId.isValid(id)) return null;
     const doc = await Post.findByIdAndUpdate(id, data, { new: true })
       .populate('category')
+      .populate('authorInfo', 'name slug jobTitle avatarUrl')
+      .populate('tagsRelation', 'name slug color')
       .lean({ virtuals: true });
     return addId(doc) as unknown as IPost | null;
   }

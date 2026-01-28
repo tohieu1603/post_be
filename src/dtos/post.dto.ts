@@ -16,7 +16,10 @@ export interface CreatePostDto {
   categoryId: string;
   status?: PostStatus;
 
-  // Author & Tags
+  // Author & Tags (ObjectId references)
+  authorId?: string;
+  tagsRelation?: string[];
+  // Legacy (deprecated - use authorId and tagsRelation instead)
   author?: string;
   tags?: string[];
 
@@ -57,7 +60,10 @@ export interface UpdatePostDto {
   categoryId?: string;
   status?: PostStatus;
 
-  // Author & Tags
+  // Author & Tags (ObjectId references)
+  authorId?: string | null;
+  tagsRelation?: string[] | null;
+  // Legacy (deprecated)
   author?: string | null;
   tags?: string[] | null;
 
@@ -96,6 +102,9 @@ export interface PostFilterDto {
   search?: string;
   categoryId?: string;
   status?: PostStatus;
+  authorId?: string;
+  tagsRelation?: string[];
+  // Legacy
   author?: string;
   tags?: string[];
   isFeatured?: boolean;

@@ -25,10 +25,12 @@ export function registerPostTools(server: McpServer, postService: PostService): 
   // Tool 1: get_posts
   server.tool(
     'get_posts',
-    'Lấy danh sách bài viết với filters (tìm kiếm, danh mục, trạng thái, phân trang)',
+    'Lấy danh sách bài viết với filters (tìm kiếm, danh mục, tác giả, tags, trạng thái, phân trang)',
     {
       search: z.string().optional().describe('Từ khóa tìm kiếm trong tiêu đề'),
-      categoryId: z.string().optional().describe('Lọc theo ID danh mục'),
+      categoryId: z.string().optional().describe('Lọc theo ObjectId danh mục'),
+      authorId: z.string().optional().describe('Lọc theo ObjectId tác giả'),
+      tagsRelation: z.array(z.string()).optional().describe('Lọc theo danh sách ObjectId tags'),
       status: z
         .enum(['draft', 'published', 'archived'])
         .optional()
@@ -47,6 +49,8 @@ export function registerPostTools(server: McpServer, postService: PostService): 
         const result = await postService.getAll({
           search: params.search,
           categoryId: params.categoryId,
+          authorId: params.authorId,
+          tagsRelation: params.tagsRelation,
           status: params.status,
           page: params.page,
           limit: params.limit,
@@ -69,8 +73,8 @@ export function registerPostTools(server: McpServer, postService: PostService): 
       content: z.string().min(1).describe('Nội dung bài viết HTML (bắt buộc)'),
       excerpt: z.string().optional().describe('Mô tả ngắn'),
       categoryId: z.string().min(1).describe('ID danh mục (bắt buộc)'),
-      tags: z.array(z.string()).optional().describe('Danh sách ID tags'),
-      author: z.string().optional().describe('ID tác giả'),
+      tagsRelation: z.array(z.string()).optional().describe('Danh sách ObjectId của tags'),
+      authorId: z.string().optional().describe('ObjectId của tác giả'),
       coverImage: z.string().optional().describe('URL ảnh đại diện'),
       status: z
         .enum(['draft', 'published', 'archived'])
@@ -85,8 +89,8 @@ export function registerPostTools(server: McpServer, postService: PostService): 
           content: params.content,
           excerpt: params.excerpt,
           categoryId: params.categoryId,
-          tags: params.tags,
-          author: params.author,
+          tagsRelation: params.tagsRelation,
+          authorId: params.authorId,
           coverImage: params.coverImage,
           status: params.status,
         }) as { title: string };

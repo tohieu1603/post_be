@@ -2,6 +2,7 @@
  * Author Tools for MCP Server
  *
  * Tools:
+ * - get_authors: Lấy danh sách tác giả với filters
  * - get_author_by_id: Lấy tác giả theo ID
  * - create_author: Tạo tác giả mới
  * - update_author: Cập nhật tác giả
@@ -14,6 +15,7 @@ import { successResponse, errorResponse } from '../utils/response';
 
 // Service type (will be injected)
 interface AuthorService {
+  getAll(filters: Record<string, unknown>): Promise<unknown>;
   getById(id: string): Promise<unknown>;
   create(dto: Record<string, unknown>): Promise<unknown>;
   update(id: string, dto: Record<string, unknown>): Promise<unknown>;
@@ -24,7 +26,43 @@ interface AuthorService {
  * Register all Author tools to the MCP server
  */
 export function registerAuthorTools(server: McpServer, authorService: AuthorService): void {
-  // Tool 1: get_author_by_id
+  // Tool 1: get_authors
+  server.tool(
+    'get_authors',
+    'Lấy danh sách tác giả với filters (tìm kiếm, trạng thái, phân trang)',
+    {
+      search: z.string().optional().describe('Tìm kiếm theo tên tác giả'),
+      isActive: z.boolean().optional().describe('Lọc theo trạng thái active'),
+      isFeatured: z.boolean().optional().describe('Lọc tác giả nổi bật'),
+      expertise: z.string().optional().describe('Lọc theo chuyên môn'),
+      sortBy: z
+        .enum(['name', 'sortOrder', 'createdAt', 'yearsExperience'])
+        .optional()
+        .describe('Sắp xếp theo trường'),
+      sortOrder: z.enum(['ASC', 'DESC']).optional().describe('Thứ tự sắp xếp'),
+      page: z.number().int().positive().default(1).describe('Số trang (mặc định: 1)'),
+      limit: z.number().int().positive().max(100).default(20).describe('Số lượng mỗi trang (mặc định: 20)'),
+    },
+    async (params) => {
+      try {
+        const result = await authorService.getAll({
+          search: params.search,
+          isActive: params.isActive,
+          isFeatured: params.isFeatured,
+          expertise: params.expertise,
+          sortBy: params.sortBy,
+          sortOrder: params.sortOrder,
+          page: params.page,
+          limit: params.limit,
+        });
+        return successResponse(result, 'Đã lấy danh sách tác giả');
+      } catch (error) {
+        return errorResponse(error);
+      }
+    }
+  );
+
+  // Tool 2: get_author_by_id
   server.tool(
     'get_author_by_id',
     'Lấy chi tiết tác giả theo ID (kèm số bài viết)',
