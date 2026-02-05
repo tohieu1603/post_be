@@ -36,23 +36,12 @@ const log = (message: string, data?: unknown) => {
   console.log(`[MCP ${timestamp}] ${message}`, data ? JSON.stringify(data) : '');
 };
 
-// Create MCP Server instance
-const mcpServer = new McpServer({
-  name: 'managepost-mcp-server',
-  version: '1.0.0',
-});
-
-log('MCP Server initialized', { tools: 29 });
-
-// Register all tools (modular)
-registerPostTools(mcpServer, postService);
-registerCategoryTools(mcpServer, categoryService);
-registerTagTools(mcpServer, tagService);
-registerAuthorTools(mcpServer, authorService);
-registerMediaTools(mcpServer, mediaService);
+// MCP Server info (total 29 tools)
+log('MCP Routes initialized', { totalTools: 29 });
 
 // Session management - store transports by session ID
 interface SessionData {
+  server: McpServer;
   transport: StreamableHTTPServerTransport;
   createdAt: number;
   lastUsed: number;
@@ -145,19 +134,33 @@ router.post('/', async (req: Request, res: Response) => {
       sessionId = randomUUID();
       isNewSession = true;
 
+      // Create new MCP server instance for this session
+      const sessionServer = new McpServer({
+        name: 'managepost-mcp-server',
+        version: '1.0.0',
+      });
+
+      // Register all tools for this session
+      registerPostTools(sessionServer, postService);
+      registerCategoryTools(sessionServer, categoryService);
+      registerTagTools(sessionServer, tagService);
+      registerAuthorTools(sessionServer, authorService);
+      registerMediaTools(sessionServer, mediaService);
+
       transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => sessionId,
       });
 
       // Store session
       sessions.set(sessionId, {
+        server: sessionServer,
         transport,
         createdAt: Date.now(),
         lastUsed: Date.now(),
       });
 
-      // Connect mcpServer with new transport
-      await mcpServer.connect(transport);
+      // Connect session server with transport
+      await sessionServer.connect(transport);
 
       log('SESSION created', { sessionId, totalSessions: sessions.size });
     }
