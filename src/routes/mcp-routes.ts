@@ -16,6 +16,7 @@ import {
   registerCategoryTools,
   registerTagTools,
   registerAuthorTools,
+  registerMediaTools,
 } from '../mcp/tools';
 
 // Import services
@@ -23,9 +24,11 @@ import { postService } from '../services/post.service';
 import { categoryService } from '../services/category.service';
 import { TagService } from '../services/tag.service';
 import { authorService } from '../services/author.service';
+import { MediaService } from '../services/media.service';
 
 const router = Router();
 const tagService = new TagService();
+const mediaService = new MediaService();
 
 // Logging helper
 const log = (message: string, data?: unknown) => {
@@ -39,13 +42,14 @@ const mcpServer = new McpServer({
   version: '1.0.0',
 });
 
-log('MCP Server initialized', { tools: 20 });
+log('MCP Server initialized', { tools: 29 });
 
 // Register all tools (modular)
 registerPostTools(mcpServer, postService);
 registerCategoryTools(mcpServer, categoryService);
 registerTagTools(mcpServer, tagService);
 registerAuthorTools(mcpServer, authorService);
+registerMediaTools(mcpServer, mediaService);
 
 // Session management - store transports by session ID
 interface SessionData {
@@ -85,6 +89,9 @@ const TOOL_LIST = [
   'get_tags', 'create_tag', 'toggle_tag_active',
   // Author (5)
   'get_authors', 'get_author_by_id', 'create_author', 'update_author', 'toggle_author_featured',
+  // Media (9)
+  'upload_media_base64', 'upload_media_from_url', 'get_media', 'get_media_by_id',
+  'update_media', 'delete_media', 'get_media_usage', 'get_media_folders', 'search_media_for_post',
 ];
 
 /**

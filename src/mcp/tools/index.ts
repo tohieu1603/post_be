@@ -6,3 +6,4 @@ export { registerPostTools } from './post.tools';
 export { registerCategoryTools } from './category.tools';
 export { registerTagTools } from './tag.tools';
 export { registerAuthorTools } from './author.tools';
+export { registerMediaTools } from './media.tools';

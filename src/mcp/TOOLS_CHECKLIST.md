@@ -9,9 +9,9 @@ Danh sách đầy đủ các tools có thể implement cho MCP Server của Mana
 | Metric | Value |
 |--------|-------|
 | **Tổng số tools có thể làm** | 102 |
-| **Tools được chọn implement** | 18 |
-| **Đã hoàn thành** | 18 |
-| **Progress** | 18/18 (100%) ✅ |
+| **Tools được chọn implement** | 29 |
+| **Đã hoàn thành** | 29 |
+| **Progress** | 29/29 (100%) ✅ |
 
 ---
 
@@ -88,19 +88,21 @@ Danh sách đầy đủ các tools có thể implement cho MCP Server của Mana
 
 ---
 
-## 5. Media Tools (9 tools)
+## 5. Media Tools (11 tools)
 
 | # | Tool Name | Mô tả | Method | Status | Selected |
 |---|-----------|-------|--------|--------|----------|
-| 40 | `get_media` | Lấy danh sách media với filters (loại, folder, phân trang) | `mediaService.findAll(params)` | [ ] | |
-| 41 | `get_media_by_id` | Lấy chi tiết media theo ID | `mediaService.findById(id)` | [ ] | |
-| 42 | `get_media_usage` | Kiểm tra media đang được dùng ở đâu | `mediaService.getUsage(id)` | [ ] | |
-| 43 | `get_media_folders` | Lấy danh sách tất cả folders | `mediaService.getFolders()` | [ ] | |
-| 44 | `get_media_by_section` | Lấy media theo page/section assignment | `mediaService.findBySection(pageSlug, sectionKey)` | [ ] | |
-| 45 | `update_media` | Cập nhật metadata media (title, alt, caption) | `mediaService.update(id, dto)` | [ ] | |
-| 46 | `delete_media` | Xóa media (kèm file vật lý) | `mediaService.delete(id)` | [ ] | |
-| 47 | `assign_media_to_section` | Gán media vào một page/section | `mediaService.assignToSection(id, assignment)` | [ ] | |
-| 48 | `unassign_media` | Gỡ media khỏi page/section | `mediaService.unassignFromSection(id, pageSlug, sectionKey)` | [ ] | |
+| 40 | `upload_media_base64` | Upload ảnh bằng base64 encoding (max 10MB) | NEW | [x] | **[SELECTED]** ✅ |
+| 41 | `upload_media_from_url` | Download và upload ảnh từ URL (max 10MB) | NEW | [x] | **[SELECTED]** ✅ |
+| 42 | `get_media` | Lấy danh sách media với filters (loại, folder, phân trang) | `mediaService.findAll(params)` | [x] | **[SELECTED]** ✅ |
+| 43 | `get_media_by_id` | Lấy chi tiết media theo ID | `mediaService.findById(id)` | [x] | **[SELECTED]** ✅ |
+| 44 | `update_media` | Cập nhật metadata media (title, alt, caption) | `mediaService.update(id, dto)` | [x] | **[SELECTED]** ✅ |
+| 45 | `delete_media` | Xóa media (kèm file vật lý) | `mediaService.delete(id)` | [x] | **[SELECTED]** ✅ |
+| 46 | `get_media_usage` | Kiểm tra media đang được dùng ở đâu | `mediaService.getUsage(id)` | [x] | **[SELECTED]** ✅ |
+| 47 | `get_media_folders` | Lấy danh sách tất cả folders | `mediaService.getFolders()` | [x] | **[SELECTED]** ✅ |
+| 48 | `search_media_for_post` | Tìm ảnh phù hợp cho bài viết theo keyword | `mediaService.findAll(search)` | [x] | **[SELECTED]** ✅ |
+| 49 | `get_media_by_section` | Lấy media theo page/section assignment | `mediaService.findBySection(pageSlug, sectionKey)` | [ ] | |
+| 50 | `assign_media_to_section` | Gán media vào một page/section | `mediaService.assignToSection(id, assignment)` | [ ] | |
 
 ---
 
@@ -110,7 +112,7 @@ Danh sách đầy đủ các tools có thể implement cho MCP Server của Mana
 
 ---
 
-## Summary: Selected Tools for Phase 1 (18 tools) ✅ COMPLETED
+## Summary: Selected Tools (29 tools) ✅ COMPLETED
 
 ### Post Tools (3) ✅
 - [x] `get_posts` - Lấy danh sách bài viết với filters
@@ -128,15 +130,28 @@ Danh sách đầy đủ các tools có thể implement cho MCP Server của Mana
 - [x] `delete_category` - Xóa danh mục
 - [x] `toggle_category_active` - Bật/tắt trạng thái danh mục
 
-### Tag Tools (2) ✅
+### Tag Tools (3) ✅
+- [x] `get_tags` - Lấy danh sách tags
 - [x] `create_tag` - Tạo tag mới
 - [x] `toggle_tag_active` - Bật/tắt trạng thái tag
 
-### Author Tools (4) ✅
+### Author Tools (5) ✅
+- [x] `get_authors` - Lấy danh sách tác giả
 - [x] `get_author_by_id` - Lấy tác giả theo ID
 - [x] `create_author` - Tạo tác giả mới
 - [x] `update_author` - Cập nhật tác giả
 - [x] `toggle_author_featured` - Bật/tắt featured tác giả
+
+### Media Tools (9) ✅ NEW!
+- [x] `upload_media_base64` - Upload ảnh bằng base64 encoding
+- [x] `upload_media_from_url` - Download & upload ảnh từ URL
+- [x] `get_media` - Lấy danh sách media
+- [x] `get_media_by_id` - Lấy media theo ID
+- [x] `update_media` - Cập nhật metadata
+- [x] `delete_media` - Xóa media
+- [x] `get_media_usage` - Kiểm tra usage
+- [x] `get_media_folders` - Lấy folders
+- [x] `search_media_for_post` - Tìm ảnh cho bài viết
 
 ---
 
@@ -147,6 +162,8 @@ Danh sách đầy đủ các tools có thể implement cho MCP Server của Mana
 | 2026-01-20 | Created | Tạo checklist với 102 tools, chọn 18 tools cho Phase 1 |
 | 2026-01-20 | Implemented | Hoàn thành 18 tools Phase 1 (Post: 3, Category: 9, Tag: 2, Author: 4) |
 | 2026-01-20 | Refactored | Chuyển sang cấu trúc modular trong src/mcp/ |
+| 2026-02-05 | Implemented | Hoàn thành 9 Media Tools (upload_media_base64, upload_media_from_url, CRUD, search) |
+| 2026-02-05 | Updated | Tổng số tools: 20 → 29 tools |
 
 ---
 

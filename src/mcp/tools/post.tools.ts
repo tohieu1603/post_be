@@ -71,7 +71,7 @@ export function registerPostTools(server: McpServer, postService: PostService): 
       // Basic
       title: z.string().min(1).describe('Tiêu đề bài viết (bắt buộc)'),
       slug: z.string().optional().describe('Slug tùy chỉnh (tự động tạo nếu không có)'),
-      content: z.string().min(1).describe('Nội dung bài viết HTML (bắt buộc)'),
+      content: z.string().min(1).describe('Nội dung bài viết dạng Markdown (bắt buộc)'),
       excerpt: z.string().optional().describe('Mô tả ngắn'),
       categoryId: z.string().min(1).describe('ID danh mục (bắt buộc)'),
       tagsRelation: z.array(z.string()).optional().describe('Danh sách ObjectId của tags'),
