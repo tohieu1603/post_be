@@ -80,9 +80,43 @@ export interface ContentStructure {
 }
 
 export type PostStatus = 'draft' | 'published' | 'archived';
+export type ArticleType = 'news' | 'opinion' | 'analysis' | 'factcheck' | 'liveblog' | 'explainer';
+
+export interface ArticleSource {
+  name: string;
+  url: string;
+}
+
+export interface ArticleEntity {
+  name: string;
+  type: string;
+  wikidataId?: string;
+}
+
+export interface ArticleClaim {
+  claim: string;
+  rating: number;
+  source?: string;
+}
+
+export interface LiveBlogUpdate {
+  headline: string;
+  body: string;
+  time: string;
+}
+
+export interface ArticleExtras {
+  entities?: ArticleEntity[];
+  claims?: ArticleClaim[];
+  liveblogUpdates?: LiveBlogUpdate[];
+}
 
 export interface IPost extends Document {
   _id: Types.ObjectId;
+  // CMS Integration
+  externalId: string | null;         // ID from external CMS for webhook sync
+  articleType: ArticleType;          // news | opinion | analysis | factcheck | liveblog | explainer
+  language: string;                  // vi | en
   // Basic Fields
   title: string;
   subtitle: string | null;  // Tiêu đề phụ
@@ -90,6 +124,11 @@ export interface IPost extends Document {
   excerpt: string | null;
   content: string;
   coverImage: string | null;
+  // Image Metadata (SEO)
+  imageAlt: string | null;
+  imageWidth: number | null;
+  imageHeight: number | null;
+  imageCaption: string | null;
   // Category
   categoryId: Types.ObjectId;
   category?: { _id: Types.ObjectId; name: string; slug: string } | null; // populated virtual
@@ -138,6 +177,13 @@ export interface IPost extends Document {
   contentBlocks: ContentBlock[] | null;
   // FAQ - Separate field for easy access
   faq: FaqItem[] | null;
+  // Webhook/CMS fields
+  isBreaking: boolean;               // Tin nóng → ưu tiên index
+  translationOf: Types.ObjectId | null; // Ref to original post (for i18n)
+  relatedIds: string[];              // External IDs of related articles
+  sources: ArticleSource[];          // Citation sources [{name, url}]
+  extras: ArticleExtras | null;      // entities, claims, liveblog_updates
+  wordCount: number | null;          // Word count from CMS
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -145,6 +191,10 @@ export interface IPost extends Document {
 
 const postSchema = new Schema<IPost>(
   {
+    // CMS Integration
+    externalId: { type: String, default: null, maxlength: 255 },
+    articleType: { type: String, enum: ['news', 'opinion', 'analysis', 'factcheck', 'liveblog', 'explainer'], default: 'news' },
+    language: { type: String, default: 'vi', maxlength: 10 },
     // Basic Fields
     title: { type: String, required: true, maxlength: 500 },
     subtitle: { type: String, default: null, maxlength: 500 },
@@ -152,6 +202,11 @@ const postSchema = new Schema<IPost>(
     excerpt: { type: String, default: null },
     content: { type: String, required: true },
     coverImage: { type: String, default: null, maxlength: 1000 },
+    // Image Metadata (SEO)
+    imageAlt: { type: String, default: null, maxlength: 500 },
+    imageWidth: { type: Number, default: null },
+    imageHeight: { type: Number, default: null },
+    imageCaption: { type: String, default: null, maxlength: 500 },
     // Category
     categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     // Status & Publishing
@@ -214,6 +269,16 @@ const postSchema = new Schema<IPost>(
       question: { type: String, required: true },
       answer: { type: String, required: true },
     }],
+    // Webhook/CMS fields
+    isBreaking: { type: Boolean, default: false },
+    translationOf: { type: Schema.Types.ObjectId, ref: 'Post', default: null },
+    relatedIds: [{ type: String }],
+    sources: [{
+      name: { type: String, required: true },
+      url: { type: String, required: true },
+    }],
+    extras: { type: Schema.Types.Mixed, default: null },
+    wordCount: { type: Number, default: null },
   },
   {
     timestamps: true,
@@ -342,6 +407,11 @@ postSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function (next) 
 });
 
 // Indexes (slug already indexed via unique: true)
+postSchema.index({ externalId: 1 }, { unique: true, sparse: true });
+postSchema.index({ articleType: 1 });
+postSchema.index({ language: 1 });
+postSchema.index({ translationOf: 1 }, { sparse: true });
+postSchema.index({ isBreaking: 1 });
 postSchema.index({ status: 1 });
 postSchema.index({ categoryId: 1 });
 postSchema.index({ publishedAt: -1 });
@@ -352,6 +422,6 @@ postSchema.index({ isEvergreen: 1 });
 postSchema.index({ isTrending: 1, trendingRank: 1 });
 postSchema.index({ viewCount: -1 }); // For trending queries
 postSchema.index({ shareCount: -1 });
-postSchema.index({ title: 'text', content: 'text' });
+postSchema.index({ title: 'text', content: 'text' }, { language_override: 'textSearchLang' });
 
 export const Post = mongoose.model<IPost>('Post', postSchema);

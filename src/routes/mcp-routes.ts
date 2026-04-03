@@ -140,12 +140,12 @@ router.post('/', async (req: Request, res: Response) => {
         version: '1.0.0',
       });
 
-      // Register all tools for this session
-      registerPostTools(sessionServer, postService);
-      registerCategoryTools(sessionServer, categoryService);
-      registerTagTools(sessionServer, tagService);
-      registerAuthorTools(sessionServer, authorService);
-      registerMediaTools(sessionServer, mediaService);
+      // Register all tools for this session (cast to any — MCP tools define their own service interfaces)
+      registerPostTools(sessionServer, postService as any);
+      registerCategoryTools(sessionServer, categoryService as any);
+      registerTagTools(sessionServer, tagService as any);
+      registerAuthorTools(sessionServer, authorService as any);
+      registerMediaTools(sessionServer, mediaService as any);
 
       transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => sessionId,

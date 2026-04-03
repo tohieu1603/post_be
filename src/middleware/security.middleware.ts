@@ -25,7 +25,7 @@ export const securityHeaders = helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       scriptSrc: ["'self'", "'unsafe-inline'"], // Allow Swagger UI inline scripts
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https://*.trycloudflare.com"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
     },

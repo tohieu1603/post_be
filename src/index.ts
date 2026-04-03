@@ -23,6 +23,9 @@ import bannerRoutes from './routes/banner-routes';
 import dictionaryRoutes from './routes/dictionary-routes';
 import schemaRoutes from './routes/schema-routes';
 import mcpRoutes from './routes/mcp-routes';
+import webhookRoutes from './routes/webhook-routes';
+import bookmarkRoutes from './routes/bookmark-routes';
+import chatRoutes from './routes/chat-routes';
 import { attachUser } from './middleware/rbac.middleware';
 import { authService } from './services/auth.service';
 import { seoSchedulerService } from './services/seo-scheduler.service';
@@ -62,6 +65,9 @@ app.get('/api/docs.json', (_, res) => {
 // ============================================
 // SECURITY MIDDLEWARE (ORDER MATTERS!)
 // ============================================
+
+// Chat streaming route - BEFORE all middleware to avoid response buffering
+app.use('/api/chat', cors({ origin: '*', credentials: true }), express.json(), chatRoutes);
 
 // 1. Security headers & protections
 app.use(securityMiddleware);
@@ -119,8 +125,11 @@ app.use('/api/banners', bannerRoutes);
 app.use('/api/dictionary', dictionaryRoutes);
 app.use('/api/schema', schemaRoutes); // Schema introspection
 app.use('/api', schemaRoutes); // Query execute route
+app.use('/api/bookmarks', bookmarkRoutes);
 app.use('/api/public', publicApiRateLimiter, publicApiRoutes); // Public API limit
 app.use('/api/mcp', mcpRoutes); // MCP Protocol endpoint for AI agents
+// Webhook routes (rate limiters applied per-route inside webhook-routes.ts)
+app.use('/api/webhook', webhookRoutes);
 
 // Health check
 app.get('/api/health', (_, res) => {

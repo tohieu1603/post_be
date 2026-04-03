@@ -97,6 +97,10 @@ export interface IAuthor extends Document {
   publications: PublicationItem[];       // Bài báo/nghiên cứu
   articles: ArticleItem[];               // Bài viết (link, tiêu đề, ảnh)
 
+  // i18n & Entity SEO
+  bioEn: string | null;                  // Bio in English
+  wikidataId: string | null;             // Wikidata entity ID for Entity SEO
+
   // Legacy fields (kept for compatibility)
   credentials: string | null;            // Bằng cấp, chứng chỉ (text)
   yearsExperience: number | null;        // Số năm kinh nghiệm (computed from experience)
@@ -198,6 +202,10 @@ const authorSchema = new Schema<IAuthor>(
       description: { type: String, default: null },
       publishedDate: { type: String, default: null },
     }],
+
+    // i18n & Entity SEO
+    bioEn: { type: String, default: null },
+    wikidataId: { type: String, default: null, maxlength: 50 },
 
     // Legacy fields
     credentials: { type: String, default: null, maxlength: 500 },

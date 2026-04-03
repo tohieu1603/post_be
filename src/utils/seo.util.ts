@@ -39,6 +39,16 @@ export interface PostMeta {
   ogImage?: string | null;
   canonicalUrl?: string | null;
   robots?: string | null;
+  // Language (BCP-47)
+  language?: string | null;
+  // Advanced fields for rich schema
+  articleType?: string | null;
+  faq?: Array<{ question: string; answer: string }> | null;
+  extras?: {
+    entities?: Array<{ name: string; type?: string; wikidataId?: string }>;
+    claims?: Array<{ claim: string; rating: number; source?: string }>;
+    liveblogUpdates?: Array<{ headline: string; body: string; time: string }>;
+  } | null;
 }
 
 export interface GeneratedMeta {
@@ -187,7 +197,7 @@ export function generateNewsArticleSchema(
         url: config.logo,
       } : undefined,
     },
-    inLanguage: 'vi-VN',
+    inLanguage: post.language === 'en' ? 'en-US' : 'vi-VN',
   };
 
   if (post.coverImage) {
@@ -229,6 +239,21 @@ export function generateNewsArticleSchema(
     schema.keywords = post.tags.join(', ');
   }
 
+  // Entity SEO: about + mentions
+  if (post.extras?.entities && post.extras.entities.length > 0) {
+    const entitySchemas = post.extras.entities.map((e) => {
+      const entity: Record<string, unknown> = { '@type': 'Thing', name: e.name };
+      if (e.wikidataId) {
+        entity.sameAs = `https://www.wikidata.org/wiki/${e.wikidataId}`;
+      }
+      return entity;
+    });
+    schema.about = entitySchemas[0];
+    if (entitySchemas.length > 1) {
+      schema.mentions = entitySchemas.slice(1);
+    }
+  }
+
   return schema;
 }
 
@@ -265,7 +290,7 @@ export function generateArticleSchema(
         url: config.logo,
       } : undefined,
     },
-    inLanguage: 'vi-VN',
+    inLanguage: post.language === 'en' ? 'en-US' : 'vi-VN',
   };
 
   if (post.coverImage) {
@@ -307,7 +332,131 @@ export function generateArticleSchema(
     schema.keywords = post.tags.join(', ');
   }
 
+  // Entity SEO: about + mentions
+  if (post.extras?.entities && post.extras.entities.length > 0) {
+    const entitySchemas = post.extras.entities.map((e) => {
+      const entity: Record<string, unknown> = { '@type': 'Thing', name: e.name };
+      if (e.wikidataId) {
+        entity.sameAs = `https://www.wikidata.org/wiki/${e.wikidataId}`;
+      }
+      return entity;
+    });
+    schema.about = entitySchemas[0];
+    if (entitySchemas.length > 1) {
+      schema.mentions = entitySchemas.slice(1);
+    }
+  }
+
   return schema;
+}
+
+/**
+ * Generate FAQPage schema
+ */
+export function generateFaqSchema(faqs: Array<{ question: string; answer: string }>): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
+/**
+ * Generate ClaimReview schema for factcheck articles
+ * Uses extras.claims array
+ */
+export function generateClaimReviewSchema(
+  post: PostMeta,
+  config: MetaTagsConfig & { logo?: string },
+  postUrl: string
+): object[] {
+  const claims = post.extras?.claims;
+  if (!claims || claims.length === 0) return [];
+
+  const url = `${config.siteUrl}${postUrl}`;
+  const authorInfo = post.authorInfo
+    ? generatePersonSchema(post.authorInfo, config)
+    : { '@type': 'Organization', name: config.siteName, url: config.siteUrl };
+
+  return claims.map((c) => ({
+    '@context': 'https://schema.org',
+    '@type': 'ClaimReview',
+    url,
+    claimReviewed: c.claim,
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: c.rating,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    author: authorInfo,
+  }));
+}
+
+/**
+ * Generate LiveBlogPosting schema for liveblog articles
+ * Uses extras.liveblogUpdates array
+ */
+export function generateLiveBlogSchema(
+  post: PostMeta,
+  config: MetaTagsConfig & { logo?: string },
+  postUrl: string
+): object {
+  const updates = post.extras?.liveblogUpdates || [];
+  const url = `${config.siteUrl}${postUrl}`;
+
+  const schema: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'LiveBlogPosting',
+    headline: post.title,
+    url,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    publisher: {
+      '@type': 'Organization',
+      name: config.siteName,
+      url: config.siteUrl,
+      ...(config.logo ? { logo: { '@type': 'ImageObject', url: config.logo } } : {}),
+    },
+  };
+
+  if (post.publishedAt) schema.datePublished = post.publishedAt;
+  if (post.updatedAt) schema.dateModified = post.updatedAt;
+
+  if (updates.length > 0) {
+    schema.liveBlogUpdate = updates.map((u) => ({
+      '@type': 'BlogPosting',
+      headline: u.headline,
+      articleBody: u.body,
+      datePublished: u.time,
+    }));
+  }
+
+  return schema;
+}
+
+/**
+ * Generate SpeakableSpecification schema for Google Assistant
+ */
+export function generateSpeakableSchema(
+  url: string,
+  selectors: string[] = ['.article-title', '.article-excerpt']
+): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    url,
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: selectors,
+    },
+  };
 }
 
 /**
@@ -394,6 +543,25 @@ export function generateWebSiteSchema(
 }
 
 /**
+ * Generate entity annotations (about/mentions) for article schema
+ * Returns Thing entities with optional Wikidata sameAs links
+ */
+export function generateEntityAnnotations(
+  entities: Array<{ name: string; type?: string; wikidataId?: string }>
+): object[] {
+  return entities.map((e) => {
+    const entity: Record<string, unknown> = {
+      '@type': 'Thing',
+      name: e.name,
+    };
+    if (e.wikidataId) {
+      entity.sameAs = `https://www.wikidata.org/wiki/${e.wikidataId}`;
+    }
+    return entity;
+  });
+}
+
+/**
  * Generate all schemas for a page
  */
 export function generatePageSchemas(
@@ -426,6 +594,28 @@ export function generatePageSchemas(
   // Add Article schema for post pages
   if (pageType === 'post' && pageData?.post && pageData?.postUrl) {
     schemas.push(generateArticleSchema(pageData.post, config, pageData.postUrl));
+
+    const { post, postUrl } = pageData;
+
+    // FAQ schema
+    if (post.faq && post.faq.length > 0) {
+      schemas.push(generateFaqSchema(post.faq));
+    }
+
+    // ClaimReview schema for factcheck articles
+    if (post.articleType === 'factcheck' && post.extras?.claims?.length) {
+      const claimSchemas = generateClaimReviewSchema(post, config, postUrl);
+      schemas.push(...claimSchemas);
+    }
+
+    // LiveBlog schema for liveblog articles
+    if (post.articleType === 'liveblog' && post.extras?.liveblogUpdates?.length) {
+      schemas.push(generateLiveBlogSchema(post, config, postUrl));
+    }
+
+    // Speakable schema for all post pages
+    const fullUrl = post.canonicalUrl || `${config.siteUrl}${postUrl}`;
+    schemas.push(generateSpeakableSchema(fullUrl));
   }
 
   return schemas;
