@@ -192,7 +192,7 @@ export interface IPost extends Document {
 const postSchema = new Schema<IPost>(
   {
     // CMS Integration
-    externalId: { type: String, default: null, maxlength: 255 },
+    externalId: { type: String, maxlength: 255 },
     articleType: { type: String, enum: ['news', 'opinion', 'analysis', 'factcheck', 'liveblog', 'explainer'], default: 'news' },
     language: { type: String, default: 'vi', maxlength: 10 },
     // Basic Fields
