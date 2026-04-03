@@ -812,6 +812,73 @@ router.get('/archive/timeline', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @swagger
+ * /public/weekly-digest:
+ *   get:
+ *     summary: Tổng hợp bài viết tuần qua (7 ngày), grouped by day
+ *     tags: [Public API]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ */
+router.get('/weekly-digest', async (req: Request, res: Response) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 50;
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    const posts = await Post.find({
+      status: 'published',
+      publishedAt: { $gte: weekAgo },
+    })
+      .select('title slug excerpt coverImage publishedAt createdAt viewCount category author')
+      .populate('category', 'name slug')
+      .populate('authorInfo', 'name slug avatarUrl')
+      .sort({ publishedAt: -1 })
+      .limit(limit)
+      .lean();
+
+    const transformedPosts = transformPosts(posts);
+
+    // Group by day (Vietnamese day labels)
+    const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const days: { date: string; label: string; posts: typeof transformedPosts }[] = [];
+    const dayMap = new Map<string, typeof transformedPosts>();
+
+    transformedPosts.forEach((post) => {
+      const d = new Date(post.publishedAt);
+      const dateKey = d.toISOString().slice(0, 10); // YYYY-MM-DD
+      if (!dayMap.has(dateKey)) dayMap.set(dateKey, []);
+      dayMap.get(dateKey)!.push(post);
+    });
+
+    // Sort days desc
+    Array.from(dayMap.entries())
+      .sort((a, b) => b[0].localeCompare(a[0]))
+      .forEach(([dateKey, dayPosts]) => {
+        const d = new Date(dateKey + 'T00:00:00');
+        const dayLabel = dayNames[d.getDay()];
+        const formatted = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        days.push({ date: dateKey, label: `${dayLabel}, ${formatted}`, posts: dayPosts });
+      });
+
+    res.json({
+      success: true,
+      data: {
+        days,
+        total: transformedPosts.length,
+        from: weekAgo.toISOString(),
+        to: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch weekly digest' });
+  }
+});
+
 // ==================== NAVIGATION APIs ====================
 
 /**
