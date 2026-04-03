@@ -362,39 +362,51 @@ export function blocksToMarkdown(blocks: ContentBlock[]): string {
 /**
  * Extract TOC from content blocks (H1 and H2)
  */
-export function extractTocFromBlocks(blocks: ContentBlock[]): { id: string; text: string; level: number; anchor: string }[] {
+export function extractTocFromBlocks(blocks: any[]): { id: string; text: string; level: number; anchor: string }[] {
   return blocks
-    .filter((block): block is HeadingBlock => block.type === 'heading' && block.level <= 2)
+    .filter((block) => block.type === 'heading' && (block.level || 2) <= 3)
     .map(block => ({
-      id: `h${block.level}-${block.anchor}`,
-      text: block.text,
-      level: block.level,
-      anchor: block.anchor,
+      id: `h${block.level}-${block.anchor || block.text?.toLowerCase().replace(/\s+/g, '-') || ''}`,
+      text: block.text || '',
+      level: block.level || 2,
+      anchor: block.anchor || block.text?.toLowerCase().replace(/\s+/g, '-') || '',
     }));
 }
 
 /**
  * Count words in content blocks
  */
-export function countWordsInBlocks(blocks: ContentBlock[]): number {
+export function countWordsInBlocks(blocks: any[]): number {
   let wordCount = 0;
 
   for (const block of blocks) {
+    // Support both ContentBlock (text) and ContentSection (content) formats
+    const textContent = block.text || block.content || '';
     switch (block.type) {
       case 'heading':
       case 'paragraph':
       case 'quote':
-        wordCount += block.text.split(/\s+/).filter(Boolean).length;
+        if (textContent) wordCount += textContent.split(/\s+/).filter(Boolean).length;
         break;
-      case 'list':
-        wordCount += block.items.join(' ').split(/\s+/).filter(Boolean).length;
+      case 'list': {
+        const items = block.items || block.list?.items || [];
+        wordCount += items.join(' ').split(/\s+/).filter(Boolean).length;
         break;
-      case 'faq':
-        wordCount += (block.question + ' ' + block.answer).split(/\s+/).filter(Boolean).length;
+      }
+      case 'faq': {
+        const faqs = block.faqs || (block.question ? [{ question: block.question, answer: block.answer }] : []);
+        for (const f of faqs) wordCount += ((f.question || '') + ' ' + (f.answer || '')).split(/\s+/).filter(Boolean).length;
         break;
-      case 'table':
-        wordCount += block.headers.join(' ').split(/\s+/).filter(Boolean).length;
-        wordCount += block.rows.flat().join(' ').split(/\s+/).filter(Boolean).length;
+      }
+      case 'table': {
+        const headers = block.headers || block.table?.headers || [];
+        const rows = block.rows || block.table?.rows || [];
+        wordCount += headers.join(' ').split(/\s+/).filter(Boolean).length;
+        wordCount += rows.flat().join(' ').split(/\s+/).filter(Boolean).length;
+        break;
+      }
+      case 'code':
+        if (textContent) wordCount += textContent.split(/\s+/).filter(Boolean).length;
         break;
     }
   }
