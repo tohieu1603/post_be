@@ -5,11 +5,72 @@ import { requireAuth, optionalAuth } from '../middleware/auth.middleware';
 
 const router = Router();
 
+// ─── Rate limiting: max 5 comments per user per minute ───────────────────────
+// Simple in-memory map; keyed by userId → array of timestamps
+const rateLimitMap = new Map<string, number[]>();
+
+// Clean up entries older than 1 minute to prevent unbounded memory growth
+function pruneRateLimitMap() {
+  const cutoff = Date.now() - 60_000;
+  for (const [key, timestamps] of rateLimitMap.entries()) {
+    const fresh = timestamps.filter((t) => t > cutoff);
+    if (fresh.length === 0) {
+      rateLimitMap.delete(key);
+    } else {
+      rateLimitMap.set(key, fresh);
+    }
+  }
+}
+
+function isRateLimited(userId: string): boolean {
+  pruneRateLimitMap();
+  const now = Date.now();
+  const cutoff = now - 60_000;
+  const timestamps = (rateLimitMap.get(userId) ?? []).filter((t) => t > cutoff);
+  if (timestamps.length >= 5) return true;
+  rateLimitMap.set(userId, [...timestamps, now]);
+  return false;
+}
+
+// ─── Duplicate detection: same user, same content within 5 minutes ───────────
+// Keyed by `${userId}:${content}` → last posted timestamp
+const recentPostMap = new Map<string, number>();
+
+function isDuplicate(userId: string, content: string): boolean {
+  const key = `${userId}:${content}`;
+  const last = recentPostMap.get(key);
+  if (last && Date.now() - last < 5 * 60_000) return true;
+  recentPostMap.set(key, Date.now());
+  // Evict entries older than 5 min periodically (keep map small)
+  if (recentPostMap.size > 500) {
+    const cutoff = Date.now() - 5 * 60_000;
+    for (const [k, ts] of recentPostMap.entries()) {
+      if (ts < cutoff) recentPostMap.delete(k);
+    }
+  }
+  return false;
+}
+
 /**
- * Strip HTML tags for XSS prevention
+ * Strip ALL HTML tags and decode common encoded entities to prevent XSS.
+ * Enhanced to handle double-encoded and entity-encoded payloads like &lt;script&gt;
  */
 function sanitizeContent(input: string): string {
-  return input.replace(/<[^>]*>/g, '').trim();
+  let s = input;
+  // Decode common HTML entities so encoded tags are also stripped
+  s = s
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#x27;/gi, "'")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+  // Strip any HTML tags (including now-decoded ones)
+  s = s.replace(/<[^>]*>/g, '');
+  // Collapse multiple blank lines to at most two
+  s = s.replace(/\n{3,}/g, '\n\n');
+  return s.trim();
 }
 
 /**
@@ -117,11 +178,23 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     }
 
     const sanitized = sanitizeContent(content);
-    if (!sanitized) {
+
+    // Min/max length validation (after sanitization)
+    if (!sanitized || sanitized.length < 1) {
       return res.status(400).json({ success: false, error: 'Content cannot be empty' });
     }
     if (sanitized.length > 2000) {
       return res.status(400).json({ success: false, error: 'Content exceeds 2000 characters' });
+    }
+
+    // Rate limit: max 5 comments per user per minute
+    if (isRateLimited(userId)) {
+      return res.status(429).json({ success: false, error: 'Bạn đang bình luận quá nhanh. Vui lòng chờ một chút.' });
+    }
+
+    // Duplicate detection: same content within 5 minutes
+    if (isDuplicate(userId, sanitized)) {
+      return res.status(400).json({ success: false, error: 'Bạn vừa gửi bình luận giống hệt này. Vui lòng không gửi lại.' });
     }
 
     // Validate parentId if provided
@@ -183,7 +256,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     }
 
     const sanitized = sanitizeContent(content);
-    if (!sanitized) {
+    if (!sanitized || sanitized.length < 1) {
       return res.status(400).json({ success: false, error: 'Content cannot be empty' });
     }
     if (sanitized.length > 2000) {
