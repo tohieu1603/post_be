@@ -606,7 +606,7 @@ router.get('/widget/most-viewed', async (req: Request, res: Response) => {
     }
 
     const posts = await Post.find(query)
-      .select('title slug coverImage viewCount publishedAt createdAt category')
+      .select('title slug excerpt coverImage viewCount publishedAt createdAt category')
       .populate('category', 'name slug')
       .sort({ viewCount: -1 })
       .limit(limit)
