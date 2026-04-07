@@ -83,8 +83,9 @@ router.get('/home/latest', async (req: Request, res: Response) => {
 
     const [posts, total] = await Promise.all([
       Post.find({ status: 'published' })
-        .select('title slug excerpt coverImage publishedAt viewCount category createdAt')
+        .select('title slug excerpt coverImage imageAlt publishedAt viewCount categoryId authorId createdAt')
         .populate('category', 'name slug')
+        .populate('authorId', 'name slug avatarUrl')
         .sort({ publishedAt: -1 })
         .skip(skip)
         .limit(limit)
