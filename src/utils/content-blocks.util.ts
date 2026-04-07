@@ -14,7 +14,20 @@ export type BlockType =
   | 'divider'
   | 'table'
   | 'faq'
-  | 'media-text';
+  | 'media-text'
+  | 'link'
+  | 'embed'
+  | 'video'
+  | 'audio'
+  | 'callout'
+  | 'button'
+  | 'accordion'
+  | 'file'
+  | 'gallery'
+  | 'map'
+  | 'social'
+  | 'html'
+  | 'review';
 
 // Base block interface
 export interface BaseBlock {
@@ -353,6 +366,36 @@ export function blocksToMarkdown(blocks: ContentBlock[]): string {
       case 'faq':
         return `**Q: ${block.question}**\n\nA: ${block.answer}`;
 
+      case 'link':
+        return `[${(block as any).text || (block as any).url}](${(block as any).url})`;
+
+      case 'embed':
+        return `[Embed: ${(block as any).url}](${(block as any).url})`;
+
+      case 'video':
+        return `[Video: ${(block as any).url}](${(block as any).url})`;
+
+      case 'audio':
+        return `[Audio: ${(block as any).url}](${(block as any).url})`;
+
+      case 'callout': {
+        const cb = block as any;
+        return `> **${cb.calloutType || 'info'}${cb.title ? ': ' + cb.title : ''}**\n> ${cb.content || cb.text || ''}`;
+      }
+
+      case 'button':
+        return `[${(block as any).text}](${(block as any).url})`;
+
+      case 'accordion': {
+        const acc = block as any;
+        return (acc.items || []).map((item: any) =>
+          `**${item.title}**\n${item.content}`
+        ).join('\n\n');
+      }
+
+      case 'html':
+        return (block as any).content || (block as any).text || '';
+
       default:
         return '';
     }
@@ -407,6 +450,38 @@ export function countWordsInBlocks(blocks: any[]): number {
       }
       case 'code':
         if (textContent) wordCount += textContent.split(/\s+/).filter(Boolean).length;
+        break;
+      case 'callout':
+        if (block.callout?.content) wordCount += block.callout.content.split(/\s+/).filter(Boolean).length;
+        if (block.callout?.title) wordCount += block.callout.title.split(/\s+/).filter(Boolean).length;
+        if (textContent) wordCount += textContent.split(/\s+/).filter(Boolean).length;
+        break;
+      case 'accordion':
+        if (block.accordion?.items) {
+          for (const item of block.accordion.items) {
+            wordCount += ((item.title || '') + ' ' + (item.content || '')).split(/\s+/).filter(Boolean).length;
+          }
+        }
+        break;
+      case 'embed':
+      case 'video':
+      case 'audio':
+      case 'image':
+      case 'gallery':
+        if (block.caption) wordCount += block.caption.split(/\s+/).filter(Boolean).length;
+        break;
+      case 'link':
+      case 'button':
+        if (block.link?.text) wordCount += block.link.text.split(/\s+/).filter(Boolean).length;
+        if (block.button?.text) wordCount += block.button.text.split(/\s+/).filter(Boolean).length;
+        break;
+      case 'review':
+        if (block.review?.summary) wordCount += block.review.summary.split(/\s+/).filter(Boolean).length;
+        if (block.review?.pros) wordCount += block.review.pros.join(' ').split(/\s+/).filter(Boolean).length;
+        if (block.review?.cons) wordCount += block.review.cons.join(' ').split(/\s+/).filter(Boolean).length;
+        break;
+      case 'html':
+        if (textContent) wordCount += textContent.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
         break;
     }
   }

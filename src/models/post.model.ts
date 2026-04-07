@@ -57,20 +57,136 @@ export interface ListBlock {
   items: string[];
 }
 
+export interface LinkBlock {
+  url: string;
+  text: string;
+  target?: '_blank' | '_self';
+  rel?: string;              // nofollow, sponsored, ugc
+  style?: 'inline' | 'button' | 'card';
+}
+
+export interface EmbedBlock {
+  url: string;
+  provider?: string;         // youtube, twitter, tiktok, facebook, codepen, etc.
+  html?: string;             // raw embed HTML
+  width?: number;
+  height?: number;
+  caption?: string;
+}
+
+export interface VideoBlock {
+  url: string;
+  poster?: string;           // thumbnail
+  caption?: string;
+  width?: number;
+  height?: number;
+  autoplay?: boolean;
+  muted?: boolean;
+}
+
+export interface AudioBlock {
+  url: string;
+  title?: string;
+  caption?: string;
+  duration?: number;         // seconds
+}
+
+export interface CalloutBlock {
+  type: 'info' | 'warning' | 'error' | 'success' | 'tip' | 'note';
+  title?: string;
+  content: string;
+}
+
+export interface ButtonBlock {
+  text: string;
+  url: string;
+  style?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  target?: '_blank' | '_self';
+  icon?: string;
+}
+
+export interface AccordionItem {
+  title: string;
+  content: string;
+}
+
+export interface AccordionBlock {
+  items: AccordionItem[];
+}
+
+export interface FileBlock {
+  url: string;
+  filename: string;
+  size?: number;             // bytes
+  mimeType?: string;
+}
+
+export interface GalleryBlock {
+  images: ImageBlock[];
+  layout?: 'grid' | 'masonry' | 'slider' | 'carousel';
+  columns?: number;
+}
+
+export interface MapBlock {
+  lat: number;
+  lng: number;
+  zoom?: number;
+  caption?: string;
+  embedUrl?: string;         // Google Maps embed URL
+}
+
+export interface SocialBlock {
+  platform: 'twitter' | 'facebook' | 'instagram' | 'tiktok' | 'linkedin' | 'youtube';
+  postId: string;
+  url: string;
+  html?: string;
+}
+
+export type ContentBlockType =
+  | 'heading' | 'paragraph' | 'image' | 'review' | 'faq' | 'table' | 'list'
+  | 'quote' | 'code' | 'html'
+  | 'link' | 'embed' | 'video' | 'audio'
+  | 'callout' | 'button' | 'accordion' | 'divider'
+  | 'file' | 'gallery' | 'map' | 'social';
+
 export interface ContentSection {
   id: string;
-  type: 'heading' | 'paragraph' | 'image' | 'review' | 'faq' | 'table' | 'list' | 'quote' | 'code' | 'html';
+  type: ContentBlockType;
   order: number;
+  // heading
   level?: number;
   text?: string;
   anchor?: string;
+  // paragraph, quote, code, html
   content?: string;
+  language?: string;         // code language
+  // media
   image?: ImageBlock;
+  video?: VideoBlock;
+  audio?: AudioBlock;
+  gallery?: GalleryBlock;
+  // structured
   review?: ReviewBlock;
   faqs?: FaqItem[];
   table?: TableBlock;
   list?: ListBlock;
-  language?: string;
+  accordion?: AccordionBlock;
+  // interactive
+  link?: LinkBlock;
+  embed?: EmbedBlock;
+  button?: ButtonBlock;
+  callout?: CalloutBlock;
+  file?: FileBlock;
+  map?: MapBlock;
+  social?: SocialBlock;
+  // quote extras
+  cite?: string;             // quote attribution
+  citeUrl?: string;
+  // generic
+  url?: string;              // fallback URL for simple blocks
+  alt?: string;
+  caption?: string;
 }
 
 export interface ContentStructure {
