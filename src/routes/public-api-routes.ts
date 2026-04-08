@@ -367,7 +367,7 @@ router.get('/post/:slug', async (req: Request, res: Response) => {
     const { slug } = req.params;
 
     const post = await Post.findOne({ slug, status: 'published' })
-      .select('title slug excerpt coverImage content contentBlocks contentStructure imageAlt imageWidth imageHeight imageCaption publishedAt createdAt updatedAt viewCount isFeatured author authorId readingTime toc faq category tagsRelation tags metaTitle metaDescription ogTitle ogDescription ogImage canonicalUrl robots wordCount isEvergreen articleType language')
+      .select('title slug excerpt coverImage content contentBlocks contentStructure imageAlt imageWidth imageHeight imageCaption publishedAt createdAt updatedAt viewCount isFeatured author authorId readingTime toc faq category tagsRelation tags metaTitle metaDescription ogTitle ogDescription ogImage canonicalUrl robots wordCount isEvergreen articleType language template extras')
       .populate('category', 'name slug seoTitle seoDescription')
       .populate('tagsRelation', 'name slug color')
       .populate('authorInfo', 'name slug jobTitle bio avatarUrl sameAs')

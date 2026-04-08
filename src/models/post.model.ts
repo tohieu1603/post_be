@@ -143,24 +143,495 @@ export interface SocialBlock {
   html?: string;
 }
 
+// === NEW ADVANCED BLOCKS ===
+
+export interface TimelineItem {
+  date: string;
+  title: string;
+  content: string;
+  icon?: string;
+  color?: string;
+}
+
+export interface TimelineBlock {
+  items: TimelineItem[];
+  layout?: 'vertical' | 'horizontal';
+}
+
+export interface StepItem {
+  title: string;
+  content: string;
+  icon?: string;
+}
+
+export interface StepsBlock {
+  items: StepItem[];
+  layout?: 'vertical' | 'horizontal' | 'numbered';
+}
+
+export interface TabItem {
+  label: string;
+  content: string;
+  icon?: string;
+}
+
+export interface TabsBlock {
+  items: TabItem[];
+  style?: 'default' | 'pills' | 'underline';
+}
+
+export interface ComparisonColumn {
+  title: string;
+  image?: string;
+  features: Record<string, string>;  // feature name → value
+  price?: string;
+  cta?: { text: string; url: string };
+  highlighted?: boolean;
+}
+
+export interface ComparisonBlock {
+  columns: ComparisonColumn[];
+  features: string[];               // ordered feature list
+}
+
+export interface PricingTier {
+  name: string;
+  price: string;
+  period?: string;                  // /tháng, /năm
+  description?: string;
+  features: string[];
+  cta: { text: string; url: string };
+  highlighted?: boolean;
+  badge?: string;                   // "Popular", "Best value"
+}
+
+export interface PricingBlock {
+  tiers: PricingTier[];
+}
+
+export interface TestimonialBlock {
+  quote: string;
+  author: string;
+  role?: string;
+  company?: string;
+  avatar?: string;
+  rating?: number;                  // 1-5
+}
+
+export interface StatItem {
+  value: string;                    // "500+", "99.9%", "$2.8B"
+  label: string;
+  icon?: string;
+  color?: string;
+}
+
+export interface StatsBlock {
+  items: StatItem[];
+  layout?: 'row' | 'grid';
+  columns?: number;
+}
+
+export interface ProfileBlock {
+  name: string;
+  role: string;
+  avatar?: string;
+  bio?: string;
+  social?: { platform: string; url: string }[];
+}
+
+export interface TeamBlock {
+  members: ProfileBlock[];
+  layout?: 'grid' | 'list';
+  columns?: number;
+}
+
+export interface ProgressItem {
+  label: string;
+  value: number;                    // 0-100
+  color?: string;
+}
+
+export interface ProgressBlock {
+  items: ProgressItem[];
+  showValue?: boolean;
+}
+
+export interface ColumnsBlock {
+  columns: { content: string; width?: number }[];
+  gap?: number;
+}
+
+export interface AlertBlock {
+  type: 'info' | 'warning' | 'error' | 'success' | 'announcement';
+  title?: string;
+  content: string;
+  dismissible?: boolean;
+  icon?: string;
+  cta?: { text: string; url: string };
+}
+
+export interface BookmarkBlock {
+  url: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  siteName?: string;
+  favicon?: string;
+}
+
+export interface ToggleBlock {
+  title: string;
+  content: string;
+  defaultOpen?: boolean;
+}
+
+export interface CountdownBlock {
+  targetDate: string;               // ISO date
+  title?: string;
+  expiredText?: string;
+}
+
+export interface BadgeGroupBlock {
+  badges: { text: string; color?: string; icon?: string; url?: string }[];
+}
+
+export interface SeparatorBlock {
+  style?: 'solid' | 'dashed' | 'dotted' | 'gradient' | 'icon';
+  icon?: string;
+  text?: string;                    // centered text on separator
+}
+
+export interface TocBlock {
+  title?: string;
+  maxLevel?: number;
+}
+
+// === CONTENT & MEDIA BLOCKS ===
+
+export interface CarouselItem {
+  type: 'image' | 'card' | 'text';
+  image?: string;
+  title?: string;
+  content?: string;
+  cta?: { text: string; url: string };
+}
+
+export interface CarouselBlock {
+  items: CarouselItem[];
+  autoplay?: boolean;
+  interval?: number;                // ms
+  showDots?: boolean;
+  showArrows?: boolean;
+}
+
+export interface BeforeAfterBlock {
+  before: { image: string; label?: string };
+  after: { image: string; label?: string };
+  orientation?: 'horizontal' | 'vertical';
+}
+
+export interface HotspotPoint {
+  x: number;                        // % from left
+  y: number;                        // % from top
+  label: string;
+  content: string;
+}
+
+export interface HotspotBlock {
+  image: string;
+  alt?: string;
+  points: HotspotPoint[];
+}
+
+export interface LottieBlock {
+  src: string;                      // .json or URL
+  loop?: boolean;
+  autoplay?: boolean;
+  width?: number;
+  height?: number;
+  caption?: string;
+}
+
+export interface PdfBlock {
+  url: string;
+  title?: string;
+  pages?: string;                   // "1-5" or "all"
+  height?: number;
+}
+
+export interface Model3DBlock {
+  url: string;                      // .glb, .gltf
+  poster?: string;
+  alt?: string;
+  autoRotate?: boolean;
+  cameraControls?: boolean;
+}
+
+// === INTERACTIVE BLOCKS ===
+
+export interface PollOption {
+  text: string;
+  votes?: number;
+}
+
+export interface PollBlock {
+  question: string;
+  options: PollOption[];
+  multiSelect?: boolean;
+  showResults?: boolean;
+  endDate?: string;
+}
+
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation?: string;
+}
+
+export interface QuizBlock {
+  title?: string;
+  questions: QuizQuestion[];
+  showScore?: boolean;
+}
+
+export interface FormField {
+  name: string;
+  label: string;
+  type: 'text' | 'email' | 'textarea' | 'select' | 'checkbox' | 'radio';
+  options?: string[];
+  required?: boolean;
+  placeholder?: string;
+}
+
+export interface FormBlock {
+  title?: string;
+  fields: FormField[];
+  submitText?: string;
+  submitUrl?: string;               // API endpoint
+  successMessage?: string;
+}
+
+export interface CalculatorField {
+  name: string;
+  label: string;
+  type: 'number' | 'select' | 'slider';
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: { label: string; value: number }[];
+  defaultValue?: number;
+}
+
+export interface CalculatorBlock {
+  title?: string;
+  fields: CalculatorField[];
+  formula: string;                  // e.g. "price * quantity * (1 - discount/100)"
+  resultLabel?: string;
+  resultPrefix?: string;            // "$", "₫"
+  resultSuffix?: string;
+}
+
+export interface RatingBlock {
+  label?: string;
+  maxStars?: number;                // default 5
+  allowHalf?: boolean;
+  defaultValue?: number;
+}
+
+export interface ReactionBlock {
+  reactions: { emoji: string; label?: string; count?: number }[];
+}
+
+// === DATA & VISUALIZATION ===
+
+export interface ChartDataset {
+  label: string;
+  data: number[];
+  color?: string;
+}
+
+export interface ChartBlock {
+  type: 'bar' | 'line' | 'pie' | 'doughnut' | 'radar' | 'area';
+  title?: string;
+  labels: string[];
+  datasets: ChartDataset[];
+  showLegend?: boolean;
+  height?: number;
+}
+
+export interface KanbanColumn {
+  title: string;
+  items: { title: string; description?: string; color?: string }[];
+}
+
+export interface KanbanBlock {
+  columns: KanbanColumn[];
+}
+
+export interface ChangelogEntry {
+  version: string;
+  date: string;
+  changes: { type: 'added' | 'changed' | 'fixed' | 'removed' | 'security'; text: string }[];
+}
+
+export interface ChangelogBlock {
+  entries: ChangelogEntry[];
+}
+
+export interface ApiResponseBlock {
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  url?: string;
+  statusCode?: number;
+  body: string;                     // JSON string
+  language?: string;
+}
+
+// === COMMERCE BLOCKS ===
+
+export interface ProductCardBlock {
+  name: string;
+  image?: string;
+  price: string;
+  originalPrice?: string;           // strikethrough
+  rating?: number;
+  badge?: string;                   // "Sale", "New"
+  description?: string;
+  cta: { text: string; url: string };
+}
+
+export interface CouponBlock {
+  code: string;
+  description?: string;
+  discount?: string;                // "20%", "$50"
+  expiresAt?: string;
+  backgroundColor?: string;
+}
+
+export interface AffiliateBlock {
+  title: string;
+  image?: string;
+  description?: string;
+  price?: string;
+  url: string;
+  platform?: string;                // Amazon, Shopee, Lazada
+  disclosure?: string;              // "Affiliate link"
+}
+
+// === LAYOUT BLOCKS ===
+
+export interface HeroBlock {
+  title: string;
+  subtitle?: string;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  cta?: { text: string; url: string; style?: string };
+  secondaryCta?: { text: string; url: string };
+  align?: 'left' | 'center' | 'right';
+  height?: string;                  // "50vh", "400px"
+  overlay?: number;                 // opacity 0-1
+}
+
+export interface BannerBlock {
+  image?: string;
+  title?: string;
+  content?: string;
+  url?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  position?: 'top' | 'inline' | 'sticky';
+  closable?: boolean;
+}
+
+export interface SpacerBlock {
+  height: number;                   // px
+}
+
+export interface ContainerBlock {
+  content: string;                  // HTML content inside
+  backgroundColor?: string;
+  borderColor?: string;
+  borderRadius?: number;
+  padding?: number;
+  maxWidth?: string;
+}
+
 export type ContentBlockType =
   | 'heading' | 'paragraph' | 'image' | 'review' | 'faq' | 'table' | 'list'
   | 'quote' | 'code' | 'html'
   | 'link' | 'embed' | 'video' | 'audio'
   | 'callout' | 'button' | 'accordion' | 'divider'
-  | 'file' | 'gallery' | 'map' | 'social';
+  | 'file' | 'gallery' | 'map' | 'social'
+  // advanced layout
+  | 'timeline' | 'steps' | 'tabs' | 'columns'
+  // commerce & comparison
+  | 'comparison' | 'pricing' | 'product-card' | 'coupon' | 'affiliate'
+  // social proof
+  | 'testimonial' | 'stats' | 'team' | 'progress'
+  // utility
+  | 'alert' | 'bookmark' | 'toggle' | 'countdown' | 'badges' | 'separator' | 'toc'
+  // content & media
+  | 'carousel' | 'before-after' | 'hotspot' | 'lottie' | 'pdf' | '3d-model'
+  // interactive
+  | 'poll' | 'quiz' | 'form' | 'calculator' | 'rating' | 'reaction'
+  // data & visualization
+  | 'chart' | 'kanban' | 'changelog' | 'api-response'
+  // layout
+  | 'hero' | 'banner' | 'spacer' | 'container';
+
+// Custom styling cho mọi block
+export interface BlockStyle {
+  // spacing
+  marginTop?: number;
+  marginBottom?: number;
+  paddingTop?: number;
+  paddingBottom?: number;
+  paddingLeft?: number;
+  paddingRight?: number;
+  // colors
+  backgroundColor?: string;
+  textColor?: string;
+  borderColor?: string;
+  // border
+  borderWidth?: number;
+  borderRadius?: number;
+  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
+  // shadow
+  boxShadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  // size
+  maxWidth?: string;                // "800px", "100%"
+  minHeight?: string;
+  // text
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  fontSize?: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl';
+  fontWeight?: 'normal' | 'medium' | 'semibold' | 'bold';
+  // layout
+  display?: 'block' | 'flex' | 'grid' | 'inline';
+  // animation
+  animation?: 'none' | 'fade-in' | 'slide-up' | 'slide-left' | 'zoom-in' | 'bounce';
+  animationDelay?: number;          // ms
+  // visibility
+  hideOnMobile?: boolean;
+  hideOnDesktop?: boolean;
+  // custom
+  className?: string;               // custom CSS class
+  cssOverride?: string;             // raw inline CSS
+}
 
 export interface ContentSection {
   id: string;
   type: ContentBlockType;
   order: number;
+  // custom styling per block
+  style?: BlockStyle;
   // heading
   level?: number;
   text?: string;
   anchor?: string;
   // paragraph, quote, code, html
   content?: string;
-  language?: string;         // code language
+  language?: string;
   // media
   image?: ImageBlock;
   video?: VideoBlock;
@@ -180,11 +651,60 @@ export interface ContentSection {
   file?: FileBlock;
   map?: MapBlock;
   social?: SocialBlock;
+  // advanced layout
+  timeline?: TimelineBlock;
+  steps?: StepsBlock;
+  tabs?: TabsBlock;
+  columns?: ColumnsBlock;
+  // commerce & comparison
+  comparison?: ComparisonBlock;
+  pricing?: PricingBlock;
+  // social proof
+  testimonial?: TestimonialBlock;
+  stats?: StatsBlock;
+  team?: TeamBlock;
+  progressBar?: ProgressBlock;
+  // utility
+  alert?: AlertBlock;
+  bookmark?: BookmarkBlock;
+  toggle?: ToggleBlock;
+  countdown?: CountdownBlock;
+  badgeGroup?: BadgeGroupBlock;
+  separator?: SeparatorBlock;
+  tocConfig?: TocBlock;
+  // content & media
+  carousel?: CarouselBlock;
+  beforeAfter?: BeforeAfterBlock;
+  hotspot?: HotspotBlock;
+  lottie?: LottieBlock;
+  pdf?: PdfBlock;
+  model3d?: Model3DBlock;
+  // interactive
+  poll?: PollBlock;
+  quiz?: QuizBlock;
+  form?: FormBlock;
+  calculator?: CalculatorBlock;
+  ratingConfig?: RatingBlock;
+  reaction?: ReactionBlock;
+  // data & visualization
+  chart?: ChartBlock;
+  kanban?: KanbanBlock;
+  changelog?: ChangelogBlock;
+  apiResponse?: ApiResponseBlock;
+  // commerce
+  productCard?: ProductCardBlock;
+  coupon?: CouponBlock;
+  affiliate?: AffiliateBlock;
+  // layout
+  hero?: HeroBlock;
+  banner?: BannerBlock;
+  spacer?: SpacerBlock;
+  container?: ContainerBlock;
   // quote extras
-  cite?: string;             // quote attribution
+  cite?: string;
   citeUrl?: string;
   // generic
-  url?: string;              // fallback URL for simple blocks
+  url?: string;
   alt?: string;
   caption?: string;
 }
@@ -196,7 +716,7 @@ export interface ContentStructure {
 }
 
 export type PostStatus = 'draft' | 'published' | 'archived';
-export type ArticleType = 'news' | 'opinion' | 'analysis' | 'factcheck' | 'liveblog' | 'explainer';
+export type ArticleType = 'news' | 'opinion' | 'analysis' | 'factcheck' | 'liveblog' | 'explainer' | 'comparison';
 
 export interface ArticleSource {
   name: string;
@@ -309,7 +829,7 @@ const postSchema = new Schema<IPost>(
   {
     // CMS Integration
     externalId: { type: String, maxlength: 255 },
-    articleType: { type: String, enum: ['news', 'opinion', 'analysis', 'factcheck', 'liveblog', 'explainer'], default: 'news' },
+    articleType: { type: String, enum: ['news', 'opinion', 'analysis', 'factcheck', 'liveblog', 'explainer', 'comparison'], default: 'news' },
     language: { type: String, default: 'vi', maxlength: 10 },
     // Basic Fields
     title: { type: String, required: true, maxlength: 500 },
