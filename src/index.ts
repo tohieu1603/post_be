@@ -27,6 +27,7 @@ import webhookRoutes from './routes/webhook-routes';
 import bookmarkRoutes from './routes/bookmark-routes';
 import commentRoutes from './routes/comment-routes';
 import chatRoutes from './routes/chat-routes';
+import blockTemplateRoutes from './routes/block-template-routes';
 import { attachUser } from './middleware/rbac.middleware';
 import { authService } from './services/auth.service';
 import { seoSchedulerService } from './services/seo-scheduler.service';
@@ -128,6 +129,7 @@ app.use('/api/schema', schemaRoutes); // Schema introspection
 app.use('/api', schemaRoutes); // Query execute route
 app.use('/api/bookmarks', bookmarkRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/block-templates', blockTemplateRoutes);
 app.use('/api/public', publicApiRateLimiter, publicApiRoutes); // Public API limit
 app.use('/api/mcp', mcpRoutes); // MCP Protocol endpoint for AI agents
 // Webhook routes (rate limiters applied per-route inside webhook-routes.ts)
