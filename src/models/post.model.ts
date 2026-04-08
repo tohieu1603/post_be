@@ -580,43 +580,253 @@ export type ContentBlockType =
   // layout
   | 'hero' | 'banner' | 'spacer' | 'container';
 
-// Custom styling cho mọi block
-export interface BlockStyle {
-  // spacing
+// === FULL CUSTOM BLOCK STYLING — VIP PRO ===
+
+export interface BlockSpacing {
   marginTop?: number;
   marginBottom?: number;
+  marginLeft?: number | 'auto';
+  marginRight?: number | 'auto';
   paddingTop?: number;
   paddingBottom?: number;
   paddingLeft?: number;
   paddingRight?: number;
-  // colors
+}
+
+export interface BlockBackground {
+  type?: 'color' | 'gradient' | 'image' | 'video' | 'pattern';
+  color?: string;
+  gradient?: string;                // "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+  image?: string;                   // URL
+  imageSize?: 'cover' | 'contain' | 'auto' | string;
+  imagePosition?: string;           // "center", "top left"
+  imageRepeat?: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y';
+  imageFixed?: boolean;             // parallax effect
+  videoUrl?: string;
+  videoLoop?: boolean;
+  pattern?: 'dots' | 'lines' | 'grid' | 'zigzag' | 'waves' | 'noise';
+  patternColor?: string;
+  patternOpacity?: number;          // 0-1
+  overlay?: string;                 // "rgba(0,0,0,0.5)"
+  blendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'darken' | 'lighten';
+}
+
+export interface BlockBorder {
+  width?: number;
+  style?: 'solid' | 'dashed' | 'dotted' | 'double' | 'groove' | 'ridge' | 'none';
+  color?: string;
+  radius?: number | string;         // 8 or "8px 16px 8px 16px" or "50%"
+  // individual sides
+  top?: { width?: number; style?: string; color?: string };
+  right?: { width?: number; style?: string; color?: string };
+  bottom?: { width?: number; style?: string; color?: string };
+  left?: { width?: number; style?: string; color?: string };
+}
+
+export interface BlockShadow {
+  preset?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'inner' | 'glow';
+  custom?: string;                  // "0 4px 6px rgba(0,0,0,0.1)"
+  color?: string;
+  glowColor?: string;               // neon glow effect
+}
+
+export interface BlockTypography {
+  fontFamily?: string;              // "Inter", "Playfair Display", "monospace"
+  fontSize?: number | string;       // 16 or "1.25rem" or "clamp(1rem, 2vw, 2rem)"
+  fontWeight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+  fontStyle?: 'normal' | 'italic';
+  lineHeight?: number | string;     // 1.5 or "1.75"
+  letterSpacing?: number | string;  // 0.5 or "0.05em"
+  wordSpacing?: string;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+  textTransform?: 'none' | 'uppercase' | 'lowercase' | 'capitalize';
+  textDecoration?: 'none' | 'underline' | 'line-through' | 'overline';
+  textShadow?: string;              // "2px 2px 4px rgba(0,0,0,0.5)"
+  color?: string;
+  // gradient text
+  gradientText?: string;            // "linear-gradient(90deg, #ff6b6b, #feca57)"
+  // truncate
+  maxLines?: number;                // line-clamp
+  // columns
+  textColumns?: number;
+  columnGap?: string;
+}
+
+export interface BlockLayout {
+  display?: 'block' | 'flex' | 'grid' | 'inline' | 'inline-flex' | 'inline-grid' | 'none';
+  // flex
+  flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
+  justifyContent?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
+  alignItems?: 'start' | 'center' | 'end' | 'stretch' | 'baseline';
+  flexWrap?: 'nowrap' | 'wrap' | 'wrap-reverse';
+  gap?: number | string;
+  // grid
+  gridCols?: number | string;       // 3 or "1fr 2fr 1fr"
+  gridRows?: string;
+  gridGap?: string;
+  // size
+  width?: string;                   // "100%", "800px", "50vw"
+  maxWidth?: string;
+  minWidth?: string;
+  height?: string;
+  maxHeight?: string;
+  minHeight?: string;
+  // overflow
+  overflow?: 'visible' | 'hidden' | 'scroll' | 'auto';
+  overflowX?: 'visible' | 'hidden' | 'scroll' | 'auto';
+  overflowY?: 'visible' | 'hidden' | 'scroll' | 'auto';
+  // position
+  position?: 'static' | 'relative' | 'absolute' | 'fixed' | 'sticky';
+  top?: string;
+  right?: string;
+  bottom?: string;
+  left?: string;
+  zIndex?: number;
+  // float
+  float?: 'none' | 'left' | 'right';
+}
+
+export interface BlockAnimation {
+  // entrance animation
+  entrance?: 'none' | 'fade-in' | 'fade-up' | 'fade-down' | 'fade-left' | 'fade-right'
+    | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right'
+    | 'zoom-in' | 'zoom-out' | 'flip-x' | 'flip-y'
+    | 'bounce' | 'rotate' | 'swing' | 'rubber-band'
+    | 'blur-in' | 'scale-up' | 'scale-down'
+    | 'typewriter' | 'reveal-left' | 'reveal-right';
+  entranceDuration?: number;        // ms
+  entranceDelay?: number;           // ms
+  entranceEasing?: 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'spring' | 'bounce';
+  // loop animation
+  loop?: 'none' | 'pulse' | 'float' | 'shake' | 'spin' | 'ping' | 'wiggle' | 'breathe' | 'glow' | 'rainbow';
+  loopDuration?: number;
+  // scroll animation
+  scrollTrigger?: boolean;          // trigger on scroll into view
+  scrollParallax?: number;          // parallax speed factor
+  scrollProgress?: boolean;         // animate based on scroll position
+  // hover animation
+  hoverEffect?: 'none' | 'lift' | 'grow' | 'shrink' | 'glow' | 'shadow' | 'tilt-3d' | 'blur-bg' | 'color-shift' | 'underline-grow' | 'border-draw';
+  hoverScale?: number;              // 1.05
+  hoverRotate?: number;             // degrees
+  hoverBrightness?: number;         // 1.1
+  // transition
+  transitionDuration?: number;      // ms
+  transitionEasing?: string;
+  // click animation
+  clickEffect?: 'none' | 'ripple' | 'shrink' | 'pulse';
+}
+
+export interface BlockTransform {
+  rotate?: number;                  // degrees
+  rotateX?: number;
+  rotateY?: number;
+  scale?: number;                   // 1 = normal
+  scaleX?: number;
+  scaleY?: number;
+  skewX?: number;
+  skewY?: number;
+  translateX?: string;              // "10px", "5%"
+  translateY?: string;
+  perspective?: string;             // "1000px" for 3D
+  transformOrigin?: string;         // "center", "top left"
+}
+
+export interface BlockFilter {
+  blur?: number;                    // px
+  brightness?: number;              // 1 = normal
+  contrast?: number;
+  grayscale?: number;               // 0-1
+  sepia?: number;                   // 0-1
+  saturate?: number;                // 1 = normal
+  hueRotate?: number;               // degrees
+  invert?: number;                  // 0-1
+  opacity?: number;                 // 0-1
+  dropShadow?: string;              // "4px 4px 8px rgba(0,0,0,0.3)"
+  // backdrop filters (glass effect)
+  backdropBlur?: number;
+  backdropBrightness?: number;
+  backdropSaturate?: number;
+}
+
+export interface BlockImage {
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+  objectPosition?: string;          // "center", "top", "50% 25%"
+  aspectRatio?: string;             // "16/9", "4/3", "1/1"
+  mask?: 'none' | 'circle' | 'rounded' | 'hexagon' | 'diamond' | 'blob' | 'wave';
+  hoverZoom?: boolean;
+  hoverZoomScale?: number;          // 1.1
+  kenBurns?: boolean;               // slow zoom effect
+  grayscaleToColor?: boolean;       // grayscale → color on hover
+  clipPath?: string;                // "polygon(...)", "circle(...)"
+}
+
+export interface BlockResponsive {
+  hideOnMobile?: boolean;           // < 640px
+  hideOnTablet?: boolean;           // 640-1024px
+  hideOnDesktop?: boolean;          // > 1024px
+  // mobile overrides
+  mobileTextAlign?: 'left' | 'center' | 'right';
+  mobileFontSize?: string;
+  mobileFlexDirection?: 'row' | 'column';
+  mobileGridCols?: number;
+  mobilePadding?: string;
+  mobileMargin?: string;
+  mobileOrder?: number;             // flex order
+  // tablet overrides
+  tabletGridCols?: number;
+  tabletFlexDirection?: 'row' | 'column';
+}
+
+export interface BlockInteraction {
+  cursor?: 'default' | 'pointer' | 'grab' | 'crosshair' | 'text' | 'not-allowed' | 'zoom-in';
+  pointerEvents?: 'auto' | 'none';
+  userSelect?: 'auto' | 'none' | 'text' | 'all';
+  // tooltip
+  tooltip?: string;
+  tooltipPosition?: 'top' | 'bottom' | 'left' | 'right';
+  // click action
+  onClick?: 'none' | 'link' | 'modal' | 'scroll-to' | 'copy' | 'toggle';
+  onClickValue?: string;            // URL, element ID, text to copy
+  // accessibility
+  ariaLabel?: string;
+  ariaRole?: string;
+  tabIndex?: number;
+}
+
+export interface BlockCondition {
+  showIf?: string;                  // condition expression
+  hideIf?: string;
+  scheduleStart?: string;           // ISO date — show after
+  scheduleEnd?: string;             // ISO date — hide after
+  geoTarget?: string[];             // country codes ["VN", "US"]
+  deviceTarget?: ('mobile' | 'tablet' | 'desktop')[];
+  abTest?: { variant: string; percentage: number };
+}
+
+// Combined style interface
+export interface BlockStyle {
+  spacing?: BlockSpacing;
+  background?: BlockBackground;
+  border?: BlockBorder;
+  shadow?: BlockShadow;
+  typography?: BlockTypography;
+  layout?: BlockLayout;
+  animation?: BlockAnimation;
+  transform?: BlockTransform;
+  filter?: BlockFilter;
+  imageStyle?: BlockImage;
+  responsive?: BlockResponsive;
+  interaction?: BlockInteraction;
+  condition?: BlockCondition;
+  // quick shortcuts (backwards compatible)
   backgroundColor?: string;
   textColor?: string;
-  borderColor?: string;
-  // border
-  borderWidth?: number;
   borderRadius?: number;
-  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
-  // shadow
-  boxShadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
-  // size
-  maxWidth?: string;                // "800px", "100%"
-  minHeight?: string;
-  // text
   textAlign?: 'left' | 'center' | 'right' | 'justify';
-  fontSize?: 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl';
-  fontWeight?: 'normal' | 'medium' | 'semibold' | 'bold';
-  // layout
-  display?: 'block' | 'flex' | 'grid' | 'inline';
-  // animation
-  animation?: 'none' | 'fade-in' | 'slide-up' | 'slide-left' | 'zoom-in' | 'bounce';
-  animationDelay?: number;          // ms
-  // visibility
-  hideOnMobile?: boolean;
-  hideOnDesktop?: boolean;
-  // custom
-  className?: string;               // custom CSS class
-  cssOverride?: string;             // raw inline CSS
+  // raw overrides
+  className?: string;
+  cssOverride?: string;
+  tailwindClasses?: string;         // "bg-gradient-to-r from-purple-500 to-pink-500"
 }
 
 export interface ContentSection {
